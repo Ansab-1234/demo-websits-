@@ -1,369 +1,477 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Star, Clock, MapPin, Phone, Shield, Sparkles, CheckCircle2, Award } from 'lucide-react'
+import {
+  ArrowLeft,
+  Clock,
+  MapPin,
+  Phone,
+  ShieldCheck,
+  CheckCircle2,
+  Calendar,
+  Car,
+  ChevronRight,
+  Flame,
+  Award,
+  Zap
+} from 'lucide-react'
+import { getWhatsAppUrl, PHONE_DISPLAY } from '../../lib/constants'
 
-const WA_URL = 'https://wa.me/918121507323'
+interface DetailingPackage {
+  name: string
+  thickness: string
+  hardness: string
+  warranty: string
+  pricing: Record<string, string>
+  features: string[]
+  isFlagship?: boolean
+}
 
-const packages = [
+const packages: DetailingPackage[] = [
   {
-    name: 'Full Body Ceramic Coating (9H/10H)',
-    price: '₹14,999',
-    original: '₹22,000',
-    duration: '24 Hours',
-    warranty: '3 Years Warranty with Free Bi-Annual Topups',
-    popular: true,
+    name: 'Stealth Shield TPU Self-Healing PPF',
+    thickness: '200 Microns (8.5 Mil)',
+    hardness: 'Instant Thermal Scratch Healing',
+    warranty: '7-Year Anti-Yellowing Warranty',
+    pricing: {
+      Hatchback: '₹68,000',
+      'Executive Sedan': '₹85,000',
+      'Luxury SUV': '₹98,000',
+      'Exotic Supercar': '₹1,25,000',
+    },
     features: [
-      '3-Stage Multi-Step Paint Correction (Swirl Mark & Scratch Removal)',
-      'Dual Layer 9H Japanese Nano-Ceramic Glass Shield',
-      'All Glass Hydrophobic Rain Repellent Treatment',
-      'Alloy Wheels Ceramic Sealant & Engine Bay Detail',
-      'Interior Anti-Bacterial Steam Clean & Leather Nourishing',
+      'Full exterior body panel wrapped in hydrophobic aliphatic TPU',
+      'Instant scratch recovery under warm sunlight or warm water',
+      'Repels stone chips, road debris, bird droppings, acid rain',
+      'Includes headlights, door cups, and piano black pillar protection',
+      'Digital computerized precision plotter pre-cut panels',
+    ],
+    isFlagship: true,
+  },
+  {
+    name: '9H Matrix Matrix Ceramic Coating',
+    thickness: '4-Layer Graphene Infused',
+    hardness: '9H Pencil Hardness Certified',
+    warranty: '3-Year Hydrophobic Guarantee',
+    pricing: {
+      Hatchback: '₹22,000',
+      'Executive Sedan': '₹28,000',
+      'Luxury SUV': '₹34,000',
+      'Exotic Supercar': '₹48,000',
+    },
+    features: [
+      '3-stage dual action Rupes paint correction (swirl removal up to 92%)',
+      'Super-hydrophobic lotus leaf contact angle (>110° water beading)',
+      'High mirror gloss enhancement with UV discoloration defense',
+      'Includes alloy wheel barrel coating & windshield glass treatment',
+      'Infrared heat-lamp thermal curing chamber protocol',
     ],
   },
   {
-    name: 'TPU Paint Protection Film (PPF)',
-    price: '₹55,000',
-    original: '₹75,000',
-    duration: '48 Hours',
-    warranty: '5-7 Years Instant Self-Healing Warranty',
-    popular: false,
+    name: 'Bespoke Interior Leather Reconditioning',
+    thickness: 'Deep Fiber Extraction',
+    hardness: 'Ceramic Leather Shield',
+    warranty: '12-Month Stain Resistance',
+    pricing: {
+      Hatchback: '₹12,000',
+      'Executive Sedan': '₹16,000',
+      'Luxury SUV': '₹19,500',
+      'Exotic Supercar': '₹26,000',
+    },
     features: [
-      'Self-Healing Thermo-Plastic Polyurethane (TPU) Film',
-      'Shields against stone chips, highway scratches & keys',
-      'Extreme High-Gloss Hydrophobic Non-Yellowing Topcoat',
-      'Computerized Plotter Pre-Cut Installation (Zero Blade Marks)',
-      'Complimentary Full Interior Deep Clean',
+      'Steam sterilization & enzyme extraction of carpets and headliner',
+      'pH-balanced conditioning of Nappa and Dakota leather upholstery',
+      'Anti-microbial AC duct ozone fumigation treatment',
+      'Ceramic coating on leather steering wheel and touch panels',
     ],
   },
-  {
-    name: 'Deep Interior Spa & Anti-Microbial Clean',
-    price: '₹3,499',
-    original: '₹5,000',
-    duration: '4 Hours',
-    warranty: '100% Odor & Stain Free Guarantee',
-    popular: false,
-    features: [
-      '140°C High-Pressure Dry Steam on AC Vents & Seats',
-      'German Hot Water Extraction on Carpets & Floor Mats',
-      'Leather Seat Cleansing with UV Conditioner Shield',
-      'Roof Headliner Microfiber Stain Extraction',
-      'Ozone Air Sterilization & Odor Eliminator',
-    ],
-  },
-]
-
-const servicesList = [
-  { name: 'Underbody Anti-Rust Coating', price: '₹2,500', time: '2 Hrs', desc: 'Heavy duty bitumen rubberized rubber coat with 5-year warranty against moisture & gravel' },
-  { name: 'Headlight Restoration & De-Yellowing', price: '₹1,200', time: '1 Hr', desc: 'Multi-stage wet sanding and UV acrylic polymer coat to restore crystal clarity' },
-  { name: 'Windshield Glass Polishing', price: '₹1,800', time: '1.5 Hrs', desc: 'Removal of wiper track marks, hard water scaling and acid rain deposits' },
-  { name: 'Engine Bay Detailing & Dressing', price: '₹999', time: '45 Mins', desc: 'Dry steam electrical-safe degreasing with non-greasy protective satin dressing' },
 ]
 
 export default function AutomobilePreview() {
-  const [carType, setCarType] = useState('Hatchback / Sedan')
-  const [form, setForm] = useState({ name: '', phone: '', carModel: '', service: 'Full Body Ceramic Coating (9H/10H)' })
-  const [booked, setBooked] = useState(false)
+  const [vehicleSegment, setVehicleSegment] = useState<'Hatchback' | 'Executive Sedan' | 'Luxury SUV' | 'Exotic Supercar'>('Luxury SUV')
+  const [bayBooking, setBayBooking] = useState({
+    name: '',
+    phone: '',
+    carModel: 'BMW 5 Series / Audi A6',
+    selectedPackage: 'Stealth Shield TPU Self-Healing PPF',
+    date: '',
+    time: '10:00 AM',
+  })
+  const [submitted, setSubmitted] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleBaySubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const msg = `Hello Apex Detailing Studio! I want to book a car detailing slot:\n• Customer: ${form.name}\n• Phone: ${form.phone}\n• Vehicle Model: ${form.carModel}\n• Vehicle Type: ${carType}\n• Service Required: ${form.service}`
-    window.open(`${WA_URL}?text=${encodeURIComponent(msg)}`, '_blank')
-    setBooked(true)
+    if (!bayBooking.name || !bayBooking.phone || !bayBooking.date) return
+    const msg = `Hello Apex Performance Labs!
+I would like to book a detailing inspection bay:
+• Client Name: ${bayBooking.name}
+• Contact: ${bayBooking.phone}
+• Vehicle Model: ${bayBooking.carModel} (${vehicleSegment})
+• Selected Treatment: ${bayBooking.selectedPackage}
+• Date: ${bayBooking.date} at ${bayBooking.time}
+Please confirm bay reservation and inspection slot!`
+
+    window.open(getWhatsAppUrl(msg), '_blank')
+    setSubmitted(true)
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
-      {/* Top Demo Banner */}
-      <div className="bg-gradient-to-r from-red-700 via-zinc-800 to-black text-white text-center py-2.5 px-4 text-xs font-semibold flex items-center justify-between">
-        <Link to="/" className="inline-flex items-center gap-1.5 opacity-90 hover:opacity-100">
-          <ArrowLeft className="w-3.5 h-3.5" /> Back to PIXORA
+    <div className="min-h-screen bg-[#060709] text-[#E5E7EB] font-sans selection:bg-[#E11D48] selection:text-white">
+      {/* Top Agency Demo Navigation Bar */}
+      <div className="bg-[#030405] text-[#828896] px-4 py-2 text-xs flex items-center justify-between border-b border-[#14161D]">
+        <Link to="/our-work" className="inline-flex items-center gap-1.5 hover:text-white transition-colors">
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to PIXORA Showcase</span>
         </Link>
-        <span>🏎️ Sample Automobile / Car Detailing Studio Website Demo</span>
-        <a href={`${WA_URL}?text=Hi! I want an automobile / car detailing website like your Apex Detailing demo.`} target="_blank" rel="noopener noreferrer" className="bg-white text-red-700 px-3 py-1 rounded-full text-xs font-bold hover:bg-red-50 transition">
-          Build My Auto Website
+        <span className="hidden sm:inline font-mono tracking-widest uppercase text-[10px] text-[#E11D48]">
+          Industry Showcase: Automobile Detailing, 9H Ceramic & TPU PPF Studio
+        </span>
+        <a
+          href={getWhatsAppUrl("Hello PIXORA DIGITAL! I explored your Apex Detailing Studio demo. I'd like to build a high-performance auto detailing website.")}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[#E11D48] hover:underline font-semibold"
+        >
+          Build Website for My Studio →
         </a>
       </div>
 
-      {/* Auto Navbar */}
-      <nav className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800">
-        <div className="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-600 to-rose-700 flex items-center justify-center text-xl shadow-lg shadow-red-600/30">
-              🏎️
+      {/* Lab Clean Room Strip */}
+      <div className="border-b border-[#14161D] bg-[#0A0C11] px-4 py-2.5 text-xs text-[#828896]">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+          <div className="flex items-center gap-6">
+            <span className="flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-[#E11D48]" />
+              Road No. 36, Jubilee Hills, Hyderabad
+            </span>
+            <span className="hidden md:flex items-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#E11D48]" />
+              Positive-Pressure Dust-Free Application Bay Certified
+            </span>
+          </div>
+          <span className="font-semibold text-white flex items-center gap-1.5">
+            <Phone className="w-3.5 h-3.5 text-[#E11D48]" />
+            Inspection Hotline: {PHONE_DISPLAY}
+          </span>
+        </div>
+      </div>
+
+      {/* Detailing Header */}
+      <header className="sticky top-0 z-40 bg-[#060709]/95 backdrop-blur-md border-b border-[#14161D]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#E11D48] text-white flex items-center justify-center font-black text-lg shadow-md shadow-rose-600/30">
+              <Zap className="w-5 h-5 fill-white" />
             </div>
-            <div>
-              <h1 className="text-xl font-black tracking-wider text-white">APEX AUTO SPA</h1>
-              <p className="text-[10px] text-red-500 font-bold tracking-widest uppercase">Ceramic Coating & Paint Protection Film Studio</p>
+            <div className="flex flex-col">
+              <span className="font-display-tech text-xl tracking-wider text-white font-bold uppercase">
+                APEX LABS
+              </span>
+              <span className="text-[10px] uppercase font-mono tracking-widest text-[#E11D48]">
+                Ceramic Surface & Paint Protection Studio
+              </span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+
+          <nav className="hidden lg:flex items-center gap-8 text-xs font-mono uppercase tracking-widest text-[#828896]">
+            <a href="#packages" className="hover:text-white transition-colors">Surface Defense</a>
+            <a href="#process" className="hover:text-white transition-colors">5-Stage Decon</a>
+            <a href="#booking" className="hover:text-white transition-colors">Reserve Bay</a>
+          </nav>
+
+          <a
+            href="#booking"
+            className="px-5 py-2.5 rounded-full bg-[#E11D48] hover:bg-rose-600 text-white text-xs font-bold tracking-wider uppercase transition-colors shadow-md shadow-rose-600/25"
+          >
+            Book Paint Inspection
+          </a>
+        </div>
+      </header>
+
+      {/* Hero: Supercar Under Inspection Lights */}
+      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden border-b border-[#14161D]">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=1600&h=1000&fit=crop')] bg-cover bg-center brightness-[0.22]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#060709] via-transparent to-black/60" />
+
+        <div className="relative max-w-4xl mx-auto px-4 text-center space-y-6 pt-12">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#E11D48]/15 border border-[#E11D48]/30 text-xs font-mono tracking-widest text-[#E11D48] uppercase">
+            <Car className="w-3.5 h-3.5" />
+            Extreme Hydrophobic Protection & Swirl Removal
+          </span>
+
+          <h1 className="font-display-tech text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.05] uppercase">
+            MOLECULAR PAINT DEFENSE. <br />
+            <span className="text-[#E11D48]">9H GRAPHENE CERAMIC</span> & PPF.
+          </h1>
+
+          <p className="text-base sm:text-lg text-[#9CA3AF] max-w-2xl mx-auto font-light leading-relaxed">
+            Hyderabad’s premier dust-free detailing clean room. Protecting high-end vehicles with self-healing optical TPU films and laboratory-grade graphene coatings.
+          </p>
+
+          <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
+            <a
+              href="#booking"
+              className="px-8 py-4 rounded-full bg-[#E11D48] hover:bg-rose-600 text-white text-xs font-bold uppercase tracking-widest transition-colors shadow-xl shadow-rose-900/30"
+            >
+              Reserve Detailing Bay Slot
+            </a>
             <a
               href="#packages"
-              className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-xl shadow transition tracking-wider uppercase"
+              className="px-8 py-4 rounded-full border border-white/20 text-white text-xs font-bold uppercase tracking-widest hover:bg-white/10 transition-colors"
             >
-              Get Studio Quote
+              Review Vehicle Pricing
             </a>
           </div>
-        </div>
-      </nav>
 
-      {/* Hero */}
-      <section className="relative min-h-[65vh] flex items-center justify-center py-24 px-4 bg-black text-white overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1617814076367-b759c7d7e738?w=1600&h=900&fit=crop')] bg-cover bg-center brightness-[0.25]" />
-        <div className="relative max-w-4xl mx-auto text-center z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-red-500/20 border border-red-500/30 text-red-300 text-xs font-semibold mb-6">
-            <Shield className="w-3.5 h-3.5 text-red-400" /> Dust-Free Climate Controlled Lab • Jubilee Hills, Hyderabad
-          </div>
-          <h2 className="text-4xl sm:text-6xl font-black mb-6 uppercase tracking-tight leading-none">
-            Unrivaled Gloss. <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-400 to-amber-300">
-              Permanent Paint Armor.
-            </span>
-          </h2>
-          <p className="text-slate-300 text-base sm:text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
-            Protect your vehicle against Hyderabad sun oxidation, swirl marks, hard water stains, and flying stone chips with certified ceramic & self-healing PPF treatments.
-          </p>
-          <div className="flex flex-wrap gap-4 justify-center">
-            <a href="#packages" className="px-7 py-3.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg transition uppercase tracking-wider">
-              Explore Packages
-            </a>
-            <a
-              href={`${WA_URL}?text=Hello Apex Detailing! I'd like to share photos of my car for a paint restoration quote.`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-7 py-3.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold rounded-xl transition"
-            >
-              Send Photos for Estimate
-            </a>
+          <div className="grid grid-cols-3 gap-6 pt-10 border-t border-white/10 max-w-lg mx-auto">
+            <div>
+              <span className="font-display-tech text-3xl font-bold text-white block">99.4 GU</span>
+              <span className="text-xs text-[#828896]">Gloss Unit Rating</span>
+            </div>
+            <div>
+              <span className="font-display-tech text-3xl font-bold text-white block">9H</span>
+              <span className="text-xs text-[#828896]">Pencil Hardness</span>
+            </div>
+            <div>
+              <span className="font-display-tech text-3xl font-bold text-white block">7 Yrs</span>
+              <span className="text-xs text-[#828896]">PPF Film Guarantee</span>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Trust Stats */}
-      <div className="border-y border-slate-800 bg-slate-900/60 py-6">
-        <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+      {/* Segment-Based Pricing Engine */}
+      <section id="packages" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-[#14161D]">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div>
-            <div className="text-3xl font-black text-red-500">2,500+</div>
-            <div className="text-xs text-slate-400 uppercase tracking-wider mt-1">Supercars & Luxury Cars Coated</div>
+            <span className="text-xs font-mono uppercase tracking-[0.25em] text-[#E11D48] font-bold block mb-2">
+              Vehicle Segment Pricing Engine
+            </span>
+            <h2 className="font-display-tech text-3xl sm:text-5xl font-bold uppercase">
+              Select Your Vehicle Class
+            </h2>
           </div>
-          <div>
-            <div className="text-3xl font-black text-red-500">100% Dust-Free</div>
-            <div className="text-xs text-slate-400 uppercase tracking-wider mt-1">Negative Pressure Coating Bay</div>
-          </div>
-          <div>
-            <div className="text-3xl font-black text-red-500">Certified Techs</div>
-            <div className="text-xs text-slate-400 uppercase tracking-wider mt-1">Gtechniq & Rupes Accredited</div>
-          </div>
-          <div>
-            <div className="text-3xl font-black text-red-500">Pick & Drop</div>
-            <div className="text-xs text-slate-400 uppercase tracking-wider mt-1">Doorstep Valet Across Hyderabad</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Detailing Packages */}
-      <section id="packages" className="max-w-6xl mx-auto px-4 py-20">
-        <div className="text-center mb-14">
-          <span className="text-red-500 text-xs font-bold uppercase tracking-widest">Precision Packages</span>
-          <h3 className="text-3xl font-black text-white mt-2 mb-3">Popular Protection Treatments</h3>
-          <p className="text-slate-400 text-sm max-w-xl mx-auto">
-            Choose your vehicle category to see transparent upfront pricing.
-          </p>
-
-          {/* Vehicle Category Pills */}
-          <div className="flex flex-wrap gap-2 justify-center mt-6">
-            {['Hatchback / Sedan', 'Compact SUV', 'Full Size Luxury SUV (Fortuner/X5/Defender)'].map((t) => (
+          {/* Segment Selector Tabs */}
+          <div className="flex flex-wrap gap-2">
+            {(['Hatchback', 'Executive Sedan', 'Luxury SUV', 'Exotic Supercar'] as const).map((seg) => (
               <button
-                key={t}
-                onClick={() => setCarType(t)}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition ${
-                  carType === t
-                    ? 'bg-red-600 text-white shadow-md'
-                    : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-white'
+                key={seg}
+                onClick={() => setVehicleSegment(seg)}
+                className={`px-4 py-2 rounded-full text-xs font-mono uppercase tracking-wider transition-all ${
+                  vehicleSegment === seg
+                    ? 'bg-[#E11D48] text-white font-bold shadow-md'
+                    : 'bg-[#0E1117] text-[#828896] border border-[#1E222D] hover:text-white'
                 }`}
               >
-                {t}
+                {seg}
               </button>
             ))}
           </div>
         </div>
 
-        <div className="grid sm:grid-cols-3 gap-6">
+        {/* Packages Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
           {packages.map((pkg) => (
             <div
               key={pkg.name}
-              className={`rounded-3xl p-7 border flex flex-col justify-between transition-all ${
-                pkg.popular
-                  ? 'bg-gradient-to-b from-slate-900 to-slate-950 border-red-500 shadow-xl shadow-red-500/10'
-                  : 'bg-slate-900/60 border-slate-800'
+              className={`rounded-3xl p-8 flex flex-col justify-between transition-all ${
+                pkg.isFlagship
+                  ? 'bg-[#0E1117] border-2 border-[#E11D48] shadow-2xl relative'
+                  : 'bg-[#0A0C11] border border-[#14161D]'
               }`}
             >
-              <div>
-                {pkg.popular && (
-                  <span className="inline-block px-3 py-1 rounded-full bg-red-600 text-white text-[10px] font-black uppercase tracking-wider mb-4">
-                    Most Demanded Treatment
-                  </span>
-                )}
-                <h4 className="text-lg font-black text-white mb-1">{pkg.name}</h4>
-                <div className="flex items-baseline gap-2 my-3">
-                  <span className="text-3xl font-black text-red-500">{pkg.price}</span>
-                  <span className="text-xs text-slate-500 line-through">{pkg.original}</span>
+              {pkg.isFlagship && (
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-[#E11D48] text-white text-xs font-mono font-bold uppercase tracking-wider">
+                  Ultimate Armor
                 </div>
-                <div className="text-[11px] font-semibold text-slate-400 mb-4 flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-red-400" /> Duration: {pkg.duration} • {pkg.warranty}
+              )}
+
+              <div>
+                <h3 className="font-display-tech text-xl font-bold text-white mb-2">{pkg.name}</h3>
+                
+                <div className="my-4 py-3 border-y border-[#1E222D] space-y-1 text-xs text-[#9CA3AF]">
+                  <p><strong>Film Spec:</strong> {pkg.thickness}</p>
+                  <p><strong>Hardness:</strong> {pkg.hardness}</p>
+                  <p><strong>Warranty:</strong> {pkg.warranty}</p>
                 </div>
 
-                <ul className="space-y-2.5 my-6">
-                  {pkg.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-xs text-slate-300">
-                      <CheckCircle2 className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-                      <span>{f}</span>
-                    </li>
+                <div className="mb-6">
+                  <span className="text-[10px] font-mono text-[#828896] uppercase block">
+                    {vehicleSegment} Pricing
+                  </span>
+                  <span className="font-display-tech text-4xl font-bold text-white">
+                    {pkg.pricing[vehicleSegment]}
+                  </span>
+                </div>
+
+                <div className="space-y-3 mb-8">
+                  {pkg.features.map((feat) => (
+                    <div key={feat} className="flex items-start gap-2.5 text-xs text-[#D1D5DB]">
+                      <CheckCircle2 className="w-4 h-4 text-[#E11D48] flex-shrink-0 mt-0.5" />
+                      <span>{feat}</span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
 
               <a
-                href={`${WA_URL}?text=Hello Apex Auto! I'm interested in the *${encodeURIComponent(pkg.name)}* for my *${carType}*. Please share slot availability.`}
+                href={getWhatsAppUrl(`Hello Apex Labs! I would like to book "${pkg.name}" for my ${vehicleSegment} (${pkg.pricing[vehicleSegment]}). Please check bay availability.`)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`w-full py-3 rounded-xl font-bold text-xs uppercase tracking-wider text-center transition ${
-                  pkg.popular ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-slate-800 hover:bg-slate-700 text-white'
+                className={`w-full py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
+                  pkg.isFlagship
+                    ? 'bg-[#E11D48] hover:bg-rose-600 text-white shadow-lg'
+                    : 'bg-[#1E222D] text-white hover:bg-[#E11D48]'
                 }`}
               >
-                Book Package on WhatsApp
+                <span>Book This Package</span>
+                <ChevronRight className="w-4 h-4" />
               </a>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Additional A La Carte Services */}
-      <section className="bg-slate-900/50 border-y border-slate-800 py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-10">
-            <h4 className="text-2xl font-black text-white">Add-On Detailing Services</h4>
-            <p className="text-xs text-slate-400 mt-1">Can be added during your main package service</p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {servicesList.map((s) => (
-              <div key={s.name} className="bg-slate-900 border border-slate-800 p-5 rounded-2xl">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-bold text-white">{s.name}</span>
-                  <span className="text-xs font-bold text-red-400">{s.price}</span>
-                </div>
-                <p className="text-xs text-slate-400 mb-2 leading-relaxed">{s.desc}</p>
-                <span className="text-[10px] text-slate-500 font-semibold">⏱ Time: {s.time}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Booking Form & Studio Location */}
-      <section className="max-w-6xl mx-auto px-4 py-20">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <span className="text-red-500 text-xs font-bold uppercase tracking-widest">Reserve Your Studio Slot</span>
-            <h3 className="text-3xl sm:text-4xl font-black text-white mt-2 mb-4">
-              Give Your Car The Showroom Mirror Finish
-            </h3>
-            <p className="text-slate-400 text-sm mb-6 leading-relaxed">
-              We take only 2 vehicles per day to ensure unhurried, obsessive craftsmanship. Book 24 hours in advance.
+      {/* Bay Slot Inspection Booking Suite */}
+      <section id="booking" className="py-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-[#0A0C11] rounded-3xl p-8 sm:p-12 border border-[#E11D48]/30 shadow-2xl">
+          <div className="text-center max-w-xl mx-auto mb-10">
+            <span className="text-xs font-mono uppercase tracking-[0.25em] text-[#E11D48] font-bold block mb-2">
+              Clean Room Bay Scheduling
+            </span>
+            <h2 className="font-display-tech text-3xl sm:text-5xl font-bold uppercase">
+              Schedule Paint Inspection
+            </h2>
+            <p className="text-xs sm:text-sm text-[#828896] mt-2">
+              We perform an initial electronic paint depth gauge test (measuring clearcoat thickness in microns) before beginning any polishing or film work.
             </p>
-            <div className="space-y-3 text-sm text-slate-300">
-              <div className="flex items-center gap-3">
-                <MapPin className="w-4 h-4 text-red-500" />
-                <span>Road No. 45, Near Durgam Cheruvu Cable Bridge, Jubilee Hills, Hyderabad</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Clock className="w-4 h-4 text-red-500" />
-                <span>Operating Hours: 9:00 AM – 8:00 PM (Tuesday to Sunday)</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Phone className="w-4 h-4 text-red-500" />
-                <span>Direct Hotline: +91 81215 07323</span>
-              </div>
-            </div>
           </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-xl">
-            {booked ? (
-              <div className="text-center py-8">
-                <CheckCircle2 className="w-14 h-14 text-emerald-400 mx-auto mb-3" />
-                <h4 className="text-xl font-bold text-white mb-2">Slot Request Forwarded!</h4>
-                <p className="text-xs text-slate-400 mb-6">WhatsApp has opened with your car details. Our master detailer will confirm your inspection time.</p>
-                <button onClick={() => setBooked(false)} className="px-5 py-2 text-xs bg-slate-800 text-slate-300 rounded-xl hover:bg-slate-700">
-                  Book Another Vehicle
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <h4 className="text-lg font-bold text-white mb-4">Book Detailing Inspection</h4>
+          {submitted ? (
+            <div className="text-center py-8 space-y-4">
+              <CheckCircle2 className="w-12 h-12 text-[#E11D48] mx-auto" />
+              <h3 className="font-display-tech text-2xl font-bold">Bay Slot Request Dispatched!</h3>
+              <p className="text-xs text-[#828896] max-w-md mx-auto">
+                Your vehicle inspection details have been sent to WhatsApp. Our studio manager will confirm your bay slot arrival time.
+              </p>
+              <button
+                onClick={() => setSubmitted(false)}
+                className="px-6 py-2 rounded-full border border-white/20 text-xs font-semibold hover:bg-white/5"
+              >
+                Book Another Inspection
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleBaySubmit} className="space-y-6">
+              <div className="grid sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Your Full Name *</label>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-[#828896] mb-2">
+                    Client Name *
+                  </label>
                   <input
-                    required
                     type="text"
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    placeholder="e.g. Aditya Varma"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm focus:outline-none focus:border-red-500"
+                    required
+                    placeholder="e.g. Rohith Goud"
+                    value={bayBooking.name}
+                    onChange={(e) => setBayBooking({ ...bayBooking, name: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#060709] border border-[#1E222D] text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#E11D48]"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">WhatsApp Phone *</label>
-                    <input
-                      required
-                      type="tel"
-                      value={form.phone}
-                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                      placeholder="10-digit number"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm focus:outline-none focus:border-red-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">Car Make & Model *</label>
-                    <input
-                      required
-                      type="text"
-                      value={form.carModel}
-                      onChange={(e) => setForm({ ...form, carModel: e.target.value })}
-                      placeholder="e.g. BMW 3 Series / Creta"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm focus:outline-none focus:border-red-500"
-                    />
-                  </div>
-                </div>
+
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Service Required</label>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-[#828896] mb-2">
+                    WhatsApp Phone *
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="+91 98765 43210"
+                    value={bayBooking.phone}
+                    onChange={(e) => setBayBooking({ ...bayBooking, phone: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#060709] border border-[#1E222D] text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#E11D48]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-[#828896] mb-2">
+                    Vehicle Model
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Porsche 911 / BMW M3 / Defender"
+                    value={bayBooking.carModel}
+                    onChange={(e) => setBayBooking({ ...bayBooking, carModel: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#060709] border border-[#1E222D] text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#E11D48]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-[#828896] mb-2">
+                    Selected Package
+                  </label>
                   <select
-                    value={form.service}
-                    onChange={(e) => setForm({ ...form, service: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm focus:outline-none focus:border-red-500"
+                    value={bayBooking.selectedPackage}
+                    onChange={(e) => setBayBooking({ ...bayBooking, selectedPackage: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#060709] border border-[#1E222D] text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#E11D48]"
                   >
-                    <option>Full Body Ceramic Coating (9H/10H)</option>
-                    <option>TPU Paint Protection Film (PPF)</option>
-                    <option>Deep Interior Spa & Anti-Microbial Clean</option>
-                    <option>Underbody Rust + Glass Polishing</option>
+                    <option>Stealth Shield TPU Self-Healing PPF</option>
+                    <option>9H Matrix Graphene Ceramic Coating</option>
+                    <option>Bespoke Interior Leather Reconditioning</option>
+                    <option>Full Paint Correction + Windshield Defense</option>
                   </select>
                 </div>
-                <button
-                  type="submit"
-                  className="w-full py-3.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-sm transition shadow mt-2 uppercase tracking-wider"
-                >
-                  Book Inspection on WhatsApp 🏎️
-                </button>
-              </form>
-            )}
-          </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-[#828896] mb-2">
+                    Drop-off Date *
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={bayBooking.date}
+                    onChange={(e) => setBayBooking({ ...bayBooking, date: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#060709] border border-[#1E222D] text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#E11D48]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-[#828896] mb-2">
+                    Time Slot
+                  </label>
+                  <select
+                    value={bayBooking.time}
+                    onChange={(e) => setBayBooking({ ...bayBooking, time: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#060709] border border-[#1E222D] text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#E11D48]"
+                  >
+                    <option>09:30 AM (Morning Drop)</option>
+                    <option>12:00 PM (Midday Inspection)</option>
+                    <option>03:00 PM (Afternoon)</option>
+                    <option>06:00 PM (Evening Drop for Next-Day Delivery)</option>
+                  </select>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-4 rounded-xl bg-[#E11D48] hover:bg-rose-600 text-white font-bold text-xs uppercase tracking-[0.2em] transition-colors shadow-lg shadow-rose-900/30"
+              >
+                Confirm Bay Reservation on WhatsApp
+              </button>
+            </form>
+          )}
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-800 bg-slate-950 py-8 text-center text-xs text-slate-500">
-        <p className="mb-2">Apex Auto Detailing Lab • Jubilee Hills, Hyderabad • Demo Project by PIXORA DIGITAL</p>
-        <Link to="/" className="text-red-500 hover:underline">Want a website built for your automobile workshop or car spa? Contact PIXORA DIGITAL →</Link>
+      <footer className="bg-[#030405] text-[#555964] py-12 border-t border-[#14161D] text-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p>© {new Date().getFullYear()} Apex Performance Labs. All rights reserved.</p>
+          <p className="font-mono text-[11px] text-[#828896]">Sample Business Website Concept engineered by PIXORA DIGITAL</p>
+        </div>
       </footer>
     </div>
   )

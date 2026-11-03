@@ -1,339 +1,483 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, BookOpen, GraduationCap, Award, Users, CheckCircle2, Clock, Phone, MapPin, Star } from 'lucide-react'
+import {
+  ArrowLeft,
+  GraduationCap,
+  BookOpen,
+  Calendar,
+  Clock,
+  MapPin,
+  Phone,
+  CheckCircle2,
+  ChevronRight,
+  ShieldCheck,
+  Users,
+  Award,
+  Sparkles,
+  FileText
+} from 'lucide-react'
+import { getWhatsAppUrl, PHONE_DISPLAY } from '../../lib/constants'
 
-const WA_URL = 'https://wa.me/918121507323'
+interface Course {
+  name: string
+  target: string
+  duration: string
+  batchRatio: string
+  weeklyHours: string
+  fee: string
+  desc: string
+  isFlagship?: boolean
+}
 
-const courses = [
+const courses: Course[] = [
   {
-    id: 1,
-    name: 'NEET Super-50 Intensive Batch',
-    target: 'Class 11, 12 & Droppers',
-    duration: '1 Year Full-Time',
-    fee: '₹45,000 / year',
-    faculty: 'Ex-AIIMS & Senior Medical Faculty',
-    results: '94% Qualification Rate in NEET 2024',
-    features: ['Daily 30-min OMR mock tests', 'Dedicated doubt clearing desk till 9 PM', 'Custom illustrated NCERT booster notes'],
+    name: '2-Year Integrated JEE Advanced Program',
+    target: 'Class 11th & 12th Moving Students',
+    duration: '2 Academic Years (2026–2028)',
+    batchRatio: 'Strict 1:30 Max Batch Ratio',
+    weeklyHours: '24 Hours Classroom + 12 Hours Supervised Study',
+    fee: '₹1,25,000 / Year',
+    desc: 'Comprehensive syllabus coverage of Physics, Chemistry & Math with weekly computer-based test (CBT) benchmarking against national percentiles.',
+    isFlagship: true,
   },
   {
-    id: 2,
-    name: 'IIT-JEE (Main + Advanced) Pinnacle',
-    target: 'Class 11 & 12 Engineering Aspirants',
-    duration: '2 Years Comprehensive',
-    fee: '₹55,000 / year',
-    faculty: 'Top IIT Bombay & IIT Madras Alumni',
-    results: '42 Students into IITs & NITs in 2024',
-    features: ['Computer-Based Test (CBT) Labs', 'Advanced calculus & mechanics problem sets', 'One-on-one mentor performance tracking'],
+    name: '2-Year Integrated NEET Medical Excellence',
+    target: 'Class 11th & 12th Medical Aspirants',
+    duration: '2 Academic Years (2026–2028)',
+    batchRatio: 'Strict 1:30 Max Batch Ratio',
+    weeklyHours: '26 Hours Classroom + NCERT Line-by-Line Drills',
+    fee: '₹1,20,000 / Year',
+    desc: 'Specialized focus on 360/360 in Biology, conceptual organic reaction mechanisms, and speed-accuracy time management drills.',
+    isFlagship: true,
   },
   {
-    id: 3,
-    name: 'Full Stack Web Development & AI BootCamp',
-    target: 'College Students & Career Switchers',
-    duration: '6 Months (Live + Projects)',
-    fee: '₹28,000 Total',
-    faculty: 'Senior Engineers from FAANG / Top MNCs',
-    results: '100% Placement Drive Support',
-    features: ['React, Node, TypeScript & Python GenAI', '5 Production Portfolio Apps on GitHub', 'Resume review & mock interview drill'],
-  },
-  {
-    id: 4,
-    name: 'Spoken English & Corporate Communication',
-    target: 'Professionals & Job Seekers',
-    duration: '3 Months (Evening Batches)',
-    fee: '₹9,500 Total',
-    faculty: 'Cambridge Certified Language Trainers',
-    results: '4,000+ Alumni Working Globally',
-    features: ['Eliminate hesitation & MTI (accent reduction)', 'Extempore, GD & presentation stage practice', 'Interview readiness drills'],
+    name: '1-Year Repeater / Dropper Rank Accelerator',
+    target: '12th Pass Students Seeking Top 500 Ranks',
+    duration: '1 Academic Year Intensive (July – May)',
+    batchRatio: '1:25 Dedicated Batch Ratio',
+    weeklyHours: '36 Hours Intensive Class + Daily Doubt Clinic',
+    fee: '₹95,000 Total',
+    desc: 'Rapid revision modules, 10,000+ curated problem sets, and daily 3-hour proctored testing designed for high-scoring repeaters.',
   },
 ]
 
-const facultyList = [
-  { name: 'Dr. M. S. R. Chary, Ph.D.', role: 'Head of Physics & Mechanics', exp: '18+ Yrs Exp • Ex-Chaitanya HOD', emoji: '👨‍🏫' },
-  { name: 'Prof. Lakshmi Kameshwari', role: 'Chief Botany & Zoology Mentor', exp: '15+ Yrs Exp • Author of 3 NEET Guides', emoji: '👩‍🏫' },
-  { name: 'Er. Sandeep Varma (B.Tech IIT-M)', role: 'Mathematics & Advanced Calculus', exp: '11+ Yrs Exp • AIR 314 in IIT-JEE', emoji: '👨‍🏫' },
+const faculty = [
+  {
+    name: 'Prof. K. Venkateshwar Rao',
+    subject: 'Senior Physics Faculty & Mentor',
+    credentials: 'B.Tech (IIT Madras), 16+ Years JEE Advanced Classroom Tenure',
+    trackRecord: 'Mentored AIR 42, AIR 118, and 400+ IITians',
+    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&h=700&fit=crop',
+  },
+  {
+    name: 'Dr. Meenakshi Sundaram',
+    subject: 'Head of Zoology & Human Physiology',
+    credentials: 'MBBS, MD (Gold Medalist), Ex-AIIMS Faculty Associate',
+    trackRecord: 'Guided 85+ students scoring 350+ marks in NEET Biology',
+    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&h=700&fit=crop',
+  },
 ]
 
 export default function EducationPreview() {
-  const [form, setForm] = useState({ name: '', phone: '', course: 'NEET Super-50 Intensive Batch', studentClass: 'Class 11' })
+  const [demoReg, setDemoReg] = useState({
+    studentName: '',
+    parentPhone: '',
+    targetStream: '2-Year Integrated JEE Advanced (Class 11)',
+    currentClass: 'Class 10th (Moving to 11th)',
+    campus: 'Madhapur Campus (Near Metro)',
+  })
   const [submitted, setSubmitted] = useState(false)
 
-  const handleEnquiry = (e: React.FormEvent) => {
+  const handleDemoSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const msg = `Hello BrightMind Academy! I want admission counseling details:\n• Student Name: ${form.name}\n• Contact Number: ${form.phone}\n• Course Interested: ${form.course}\n• Current Class: ${form.studentClass}`
-    window.open(`${WA_URL}?text=${encodeURIComponent(msg)}`, '_blank')
+    if (!demoReg.studentName || !demoReg.parentPhone) return
+    const msg = `Hello Ascent Academy!
+I would like to register for a Free 2-Day Classroom Demo Class & Diagnostic Test:
+• Student Name: ${demoReg.studentName}
+• Parent WhatsApp: ${demoReg.parentPhone}
+• Target Stream: ${demoReg.targetStream}
+• Current Standard: ${demoReg.currentClass}
+• Preferred Campus: ${demoReg.campus}
+Please confirm seat reservation and send syllabus diagnostic test paper!`
+
+    window.open(getWhatsAppUrl(msg), '_blank')
     setSubmitted(true)
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      {/* Top Demo Banner */}
-      <div className="bg-gradient-to-r from-teal-700 via-cyan-800 to-slate-900 text-white text-center py-2.5 px-4 text-xs font-semibold flex items-center justify-between">
-        <Link to="/" className="inline-flex items-center gap-1.5 opacity-90 hover:opacity-100">
-          <ArrowLeft className="w-3.5 h-3.5" /> Back to PIXORA
+    <div className="min-h-screen bg-[#F8FAFC] text-[#0F1E36] font-sans selection:bg-[#0F1E36] selection:text-white">
+      {/* Top Agency Demo Navigation Bar */}
+      <div className="bg-[#0B1528] text-[#8C9BB4] px-4 py-2 text-xs flex items-center justify-between border-b border-[#18263E]">
+        <Link to="/our-work" className="inline-flex items-center gap-1.5 hover:text-white transition-colors">
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to PIXORA Showcase</span>
         </Link>
-        <span>📚 Sample Coaching Institute & Academy Website Demo</span>
-        <a href={`${WA_URL}?text=Hi! I want an educational / coaching institute website like your BrightMind demo.`} target="_blank" rel="noopener noreferrer" className="bg-white text-teal-900 px-3 py-1 rounded-full text-xs font-bold hover:bg-teal-50 transition">
-          Build My Institute Website
+        <span className="hidden sm:inline font-mono tracking-widest uppercase text-[10px] text-[#F59E0B]">
+          Industry Showcase: Academic Coaching Academy & Entrance Institute
+        </span>
+        <a
+          href={getWhatsAppUrl("Hello PIXORA DIGITAL! I explored your Ascent Academy Education demo. I'd like to build an educational institute website.")}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[#F59E0B] hover:underline font-semibold"
+        >
+          Build Website for My Institute →
         </a>
       </div>
 
-      {/* Academy Navbar */}
-      <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-600 to-cyan-700 flex items-center justify-center text-xl text-white shadow-md">
-              🎓
-            </div>
-            <div>
-              <h1 className="text-xl font-black text-slate-900 tracking-tight">BRIGHTMIND ACADEMY</h1>
-              <p className="text-[10px] text-teal-600 font-bold tracking-widest uppercase">Premier NEET, IIT-JEE & Career Skills Hub • Hyderabad</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <a
-              href="#admissions"
-              className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl shadow transition"
-            >
-              Admissions Open 2026-27
-            </a>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero */}
-      <section className="relative min-h-[60vh] flex items-center justify-center py-20 px-4 bg-slate-950 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1600&h=900&fit=crop')] bg-cover bg-center opacity-25" />
-        <div className="relative max-w-4xl mx-auto text-center z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-teal-500/20 border border-teal-400/30 text-teal-300 text-xs font-semibold mb-6">
-            <Award className="w-3.5 h-3.5 text-teal-400" /> Scholarships Up to 90% Available via BrightMind Talent Exam (BMTE)
-          </div>
-          <h2 className="text-4xl sm:text-6xl font-black mb-6 leading-tight">
-            Nurturing Ambition into <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-cyan-300 to-emerald-300">
-              National Top Ranks.
+      {/* Campus Info Strip */}
+      <div className="border-b border-[#E2E8F0] bg-white px-4 py-2.5 text-xs text-[#52637D]">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+          <div className="flex items-center gap-6">
+            <span className="flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-[#0F1E36]" />
+              Campuses: Madhapur (Hitec City) & Dilsukhnagar, Hyderabad
             </span>
-          </h2>
-          <p className="text-slate-300 text-base sm:text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
-            Personalized mentoring with restricted batch sizes of only 35 students per class. Learn from Kota and Hyderabad's top educator legends in Dilsukhnagar & Kukatpally.
-          </p>
-          <div className="flex flex-wrap gap-4 justify-center">
-            <a href="#admissions" className="px-7 py-3.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-lg transition">
-              Apply For Free Demo Class
-            </a>
-            <a
-              href={`${WA_URL}?text=Hello BrightMind! I'd like to receive the 2026-27 Course Fee Structure & Scholarship Brochure.`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-7 py-3.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold rounded-xl transition"
-            >
-              Get Fee Brochure PDF
-            </a>
+            <span className="hidden md:flex items-center gap-1.5">
+              <Users className="w-3.5 h-3.5 text-[#0F1E36]" />
+              Classroom Batches Capped at Maximum 30 Students
+            </span>
           </div>
-        </div>
-      </section>
-
-      {/* Highlights Bar */}
-      <div className="border-b border-slate-200 bg-white py-6">
-        <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
-          <div>
-            <div className="text-2xl font-black text-teal-800">1:35 Ratio</div>
-            <div className="text-xs text-slate-500 mt-1">Strict Small Batch Limits</div>
-          </div>
-          <div>
-            <div className="text-2xl font-black text-teal-800">Daily Tests</div>
-            <div className="text-xs text-slate-500 mt-1">Real Time AI Rank Predictor</div>
-          </div>
-          <div>
-            <div className="text-2xl font-black text-teal-800">Air-Conditioned</div>
-            <div className="text-xs text-slate-500 mt-1">Smart Digital Classrooms</div>
-          </div>
-          <div>
-            <div className="text-2xl font-black text-teal-800">Doubt Counters</div>
-            <div className="text-xs text-slate-500 mt-1">Open 8 AM till 9 PM Every Day</div>
-          </div>
+          <span className="font-semibold text-[#0F1E36] flex items-center gap-1.5">
+            <Phone className="w-3.5 h-3.5 text-[#F59E0B]" />
+            Admissions Cell: {PHONE_DISPLAY}
+          </span>
         </div>
       </div>
 
-      {/* Courses Grid */}
-      <section className="max-w-6xl mx-auto px-4 py-20">
-        <div className="text-center mb-14">
-          <span className="text-teal-700 text-xs font-bold uppercase tracking-widest">Academic Programs</span>
-          <h3 className="text-3xl font-black text-slate-900 mt-2 mb-3">Structured Batches For 2026-27</h3>
-          <p className="text-slate-500 text-sm max-w-xl mx-auto">
-            Comprehensive foundation programs, crash revision batches and industry career courses.
-          </p>
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#E2E8F0]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#0F1E36] text-white flex items-center justify-center font-bold text-lg shadow-md">
+              <GraduationCap className="w-5 h-5 text-[#F59E0B]" />
+            </div>
+            <div className="flex flex-col">
+              <span className="font-bold text-xl tracking-tight text-[#0F1E36]">
+                ASCENT ACADEMY
+              </span>
+              <span className="text-[10px] uppercase font-mono tracking-wider text-[#52637D] font-semibold">
+                IIT-JEE, NEET & Olympiad Sciences • Hyderabad
+              </span>
+            </div>
+          </div>
+
+          <nav className="hidden lg:flex items-center gap-8 text-xs font-semibold uppercase tracking-wider text-[#52637D]">
+            <a href="#courses" className="hover:text-[#0F1E36] transition-colors">Courses & Schedules</a>
+            <a href="#faculty" className="hover:text-[#0F1E36] transition-colors">IIT Faculty</a>
+            <a href="#pedagogy" className="hover:text-[#0F1E36] transition-colors">Doubt Clearing Model</a>
+            <a href="#demo" className="hover:text-[#0F1E36] transition-colors">Free Demo Class</a>
+          </nav>
+
+          <a
+            href="#demo"
+            className="px-5 py-2.5 rounded-full bg-[#0F1E36] text-white text-xs font-bold tracking-wider uppercase hover:bg-[#F59E0B] hover:text-black transition-colors shadow-md"
+          >
+            Claim 2-Day Demo Pass
+          </a>
         </div>
+      </header>
 
-        <div className="grid sm:grid-cols-2 gap-6">
-          {courses.map((c) => (
-            <div key={c.id} className="bg-white border border-slate-200 rounded-3xl p-7 shadow-sm hover:border-teal-500/80 hover:shadow-lg transition flex flex-col justify-between">
+      {/* Hero Section */}
+      <section className="py-20 lg:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-7 space-y-6">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-900">
+              <Award className="w-4 h-4 text-[#F59E0B]" />
+              Admissions Open for Academic Year 2026–2027 • Limited 30 Seats/Batch
+            </div>
+
+            <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-[#0F1E36] leading-[1.08]">
+              PROVEN PEDAGOGY. <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0F1E36] via-[#1A3660] to-[#F59E0B]">
+                SMALL-BATCH MENTORSHIP.
+              </span> <br />
+              TOP-TIER RANKS.
+            </h1>
+
+            <p className="text-base sm:text-lg text-[#52637D] leading-relaxed max-w-xl font-normal">
+              Hyderabad’s premier academic institute where students don't get lost in crowded 200-seat lecture halls. Learn directly from IIT Madras and AIIMS faculty in intimate batches capped at 30.
+            </p>
+
+            <div className="pt-4 flex flex-wrap gap-4">
+              <a
+                href="#demo"
+                className="px-8 py-4 rounded-full bg-[#0F1E36] hover:bg-[#F59E0B] hover:text-black text-white text-xs font-bold uppercase tracking-widest transition-colors shadow-lg shadow-blue-950/20"
+              >
+                Book Free 2-Day Demo Seat
+              </a>
+              <a
+                href="#courses"
+                className="px-8 py-4 rounded-full border border-[#CBD5E1] bg-white text-[#0F1E36] text-xs font-bold uppercase tracking-widest hover:bg-slate-50 transition-colors shadow-xs"
+              >
+                View Batch Timetables
+              </a>
+            </div>
+
+            <div className="grid grid-cols-3 gap-6 pt-8 border-t border-[#E2E8F0] max-w-lg">
               <div>
-                <div className="flex items-center justify-between gap-3 mb-2">
-                  <span className="text-xs font-bold text-teal-700 bg-teal-50 px-3 py-1 rounded-full uppercase tracking-wider">
-                    {c.target}
-                  </span>
-                  <span className="text-sm font-black text-slate-900">{c.fee}</span>
-                </div>
-                <h4 className="text-xl font-bold text-slate-900 mb-2">{c.name}</h4>
-                <div className="text-xs text-slate-600 mb-1">
-                  <strong>Duration:</strong> {c.duration} • <strong>Faculty:</strong> {c.faculty}
-                </div>
-                <div className="text-xs font-semibold text-emerald-700 mb-4 bg-emerald-50 p-2 rounded-xl">
-                  🏆 Track Record: {c.results}
-                </div>
-                <ul className="space-y-2 mb-6">
-                  {c.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-xs text-slate-600">
-                      <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
+                <span className="text-2xl sm:text-3xl font-black font-mono text-[#0F1E36] block">1:30</span>
+                <span className="text-xs text-[#52637D]">Max Student Ratio</span>
               </div>
-
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-xs text-slate-400">Batches starting 1st of every month</span>
-                <a
-                  href={`${WA_URL}?text=Hello BrightMind Academy! I'm interested in enrolling for *${encodeURIComponent(c.name)}*. Please share syllabus & demo seat details.`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold rounded-xl transition shadow"
-                >
-                  Apply via WhatsApp
-                </a>
+              <div>
+                <span className="text-2xl sm:text-3xl font-black font-mono text-[#0F1E36] block">16+ Yrs</span>
+                <span className="text-xs text-[#52637D]">Faculty Seniority</span>
+              </div>
+              <div>
+                <span className="text-2xl sm:text-3xl font-black font-mono text-[#0F1E36] block">Daily</span>
+                <span className="text-xs text-[#52637D]">1-on-1 Doubt Clinic</span>
               </div>
             </div>
-          ))}
+          </div>
+
+          <div className="lg:col-span-5 relative">
+            <div className="rounded-3xl overflow-hidden shadow-2xl border-4 border-white aspect-[4/3] bg-white group">
+              <img
+                src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=900&h=700&fit=crop"
+                alt="Focused Classroom Environment"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6 text-white">
+                <span className="text-[10px] font-mono tracking-widest uppercase text-amber-300">Classroom Culture</span>
+                <h3 className="text-xl font-bold">Concept Rigor & Speed Accuracy</h3>
+                <p className="text-xs text-slate-200 mt-1">Daily Practice Problems (DPP) solved under live supervision</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Senior Faculty */}
-      <section className="bg-white border-y border-slate-200 py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
-            <span className="text-teal-700 text-xs font-bold uppercase tracking-widest">Master Mentors</span>
-            <h3 className="text-3xl font-black text-slate-900 mt-2 mb-3">Learn From Kota & Hyderabad’s Best</h3>
-            <p className="text-slate-500 text-sm">Our faculty does not rotate. The same mentors guide you from day one to exam hall.</p>
+      {/* Courses Schedule & Fee Matrix */}
+      <section id="courses" className="py-24 bg-white border-t border-[#E2E8F0]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="text-xs uppercase font-mono tracking-[0.25em] text-[#F59E0B] font-bold block mb-2">
+              Academic Architecture
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[#0F1E36]">
+              Targeted Preparation Batches
+            </h2>
+            <p className="text-sm text-[#52637D] mt-3">
+              Every course includes complete printed study modules, online computer-based test portal access, and weekly parent progress reports.
+            </p>
           </div>
-          <div className="grid sm:grid-cols-3 gap-6">
-            {facultyList.map((f) => (
-              <div key={f.name} className="bg-slate-50 border border-slate-200 rounded-2xl p-6 text-center hover:shadow transition">
-                <div className="text-5xl mb-4">{f.emoji}</div>
-                <h4 className="text-base font-bold text-slate-900 mb-1">{f.name}</h4>
-                <p className="text-xs font-semibold text-teal-700 mb-2">{f.role}</p>
-                <p className="text-xs text-slate-500">{f.exp}</p>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+            {courses.map((course) => (
+              <div
+                key={course.name}
+                className={`rounded-3xl p-8 flex flex-col justify-between transition-all ${
+                  course.isFlagship
+                    ? 'bg-[#0B1528] text-white shadow-2xl relative border-2 border-[#F59E0B]'
+                    : 'bg-[#F8FAFC] text-[#0F1E36] border border-[#E2E8F0]'
+                }`}
+              >
+                {course.isFlagship && (
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-[#F59E0B] text-black text-xs font-mono font-bold uppercase tracking-wider">
+                    Flagship Program
+                  </div>
+                )}
+
+                <div>
+                  <h3 className="text-xl font-bold mb-2">{course.name}</h3>
+                  <p className={`text-xs mb-4 font-mono ${course.isFlagship ? 'text-amber-300' : 'text-[#F59E0B]'}`}>
+                    {course.target}
+                  </p>
+
+                  <div className="my-4 py-4 border-y border-white/10 space-y-1.5 text-xs">
+                    <p><strong>Duration:</strong> {course.duration}</p>
+                    <p><strong>Batch Ratio:</strong> {course.batchRatio}</p>
+                    <p><strong>Workload:</strong> {course.weeklyHours}</p>
+                    <p><strong>Academic Fee:</strong> <span className="font-mono font-bold text-base">{course.fee}</span></p>
+                  </div>
+
+                  <p className={`text-xs leading-relaxed ${course.isFlagship ? 'text-slate-300' : 'text-[#52637D]'}`}>
+                    {course.desc}
+                  </p>
+                </div>
+
+                <div className="pt-6 border-t border-white/10 mt-6">
+                  <a
+                    href={getWhatsAppUrl(`Hello Ascent Academy! I am interested in enrolling my child in "${course.name}" (${course.fee}). Please share syllabus brochure and scholarship test dates.`)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`w-full py-3.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
+                      course.isFlagship
+                        ? 'bg-[#F59E0B] text-black hover:bg-amber-400 shadow-md'
+                        : 'bg-[#0F1E36] text-white hover:bg-[#F59E0B] hover:text-black'
+                    }`}
+                  >
+                    <span>Request Course Syllabus</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </a>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Admission Enquiry Form */}
-      <section id="admissions" className="max-w-6xl mx-auto px-4 py-20">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <span className="text-teal-700 text-xs font-bold uppercase tracking-widest">Counseling & Free Demo</span>
-            <h3 className="text-3xl sm:text-4xl font-black text-slate-900 mt-2 mb-4">
-              Book a Free Counseling Session & Demo Class
-            </h3>
-            <p className="text-slate-600 text-sm mb-6 leading-relaxed">
-              Sit in on live lectures, interact with our HODs, take an assessment test, and see why 9 out of 10 parents choose BrightMind.
-            </p>
-            <div className="space-y-3 text-sm text-slate-700">
-              <div className="flex items-center gap-3">
-                <MapPin className="w-4 h-4 text-teal-600" />
-                <span>Campuses: Dilsukhnagar Main Rd & Kukatpally Housing Board (KPHB), Hyderabad</span>
+      {/* Faculty Credentials */}
+      <section id="faculty" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-2xl mb-12">
+          <span className="text-xs uppercase font-mono tracking-[0.25em] text-[#F59E0B] font-bold block mb-2">
+            Master Educators
+          </span>
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[#0F1E36]">
+            Learn from Senior IIT & AIIMS Alumni
+          </h2>
+          <p className="text-sm text-[#52637D] mt-3">
+            Our permanent faculty members teach every single lecture themselves. No junior assistants or substituted online recordings.
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-8">
+          {faculty.map((f) => (
+            <div key={f.name} className="flex flex-col sm:flex-row gap-6 p-6 rounded-3xl bg-white border border-[#E2E8F0] shadow-sm">
+              <div className="w-full sm:w-48 h-56 rounded-2xl overflow-hidden bg-slate-100 flex-shrink-0">
+                <img
+                  src={f.image}
+                  alt={f.name}
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <div className="flex items-center gap-3">
-                <Clock className="w-4 h-4 text-teal-600" />
-                <span>Office Hours: 8:00 AM – 7:30 PM (Open all 7 days)</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Phone className="w-4 h-4 text-teal-600" />
-                <span>Admissions Helpline: +91 81215 07323</span>
+              <div className="flex flex-col justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-[#0F1E36]">{f.name}</h3>
+                  <p className="text-xs font-bold text-[#F59E0B] mt-0.5">{f.subject}</p>
+                  <p className="text-xs text-[#52637D] mt-2 font-mono">{f.credentials}</p>
+                  <p className="text-xs text-[#334155] mt-3 leading-relaxed">
+                    <strong>Proven Track Record:</strong> {f.trackRecord}
+                  </p>
+                </div>
+                <div className="pt-4 border-t border-[#E2E8F0] mt-4">
+                  <a
+                    href={getWhatsAppUrl(`Hello Ascent Academy! I'd like to book a direct academic counseling session with ${f.name}.`)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0F1E36] hover:text-[#F59E0B]"
+                  >
+                    <span>Consult with Faculty</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </a>
+                </div>
               </div>
             </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Free 2-Day Demo Class Registration Suite */}
+      <section id="demo" className="py-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-[#0B1528] rounded-3xl p-8 sm:p-12 text-white border border-white/10 shadow-2xl">
+          <div className="text-center max-w-xl mx-auto mb-10">
+            <span className="text-xs font-mono uppercase tracking-[0.25em] text-[#F59E0B] font-bold block mb-2">
+              Experience the Classroom
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight">
+              Register for Free 2-Day Demo Class
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300 mt-2">
+              Attend two live classroom lectures with our senior IIT faculty and take our complimentary diagnostic aptitude test before deciding.
+            </p>
           </div>
 
-          <div className="bg-white border border-slate-200 p-6 sm:p-8 rounded-3xl shadow-sm">
-            {submitted ? (
-              <div className="text-center py-8">
-                <CheckCircle2 className="w-14 h-14 text-emerald-500 mx-auto mb-3" />
-                <h4 className="text-xl font-bold text-slate-900 mb-2">Enquiry Received!</h4>
-                <p className="text-xs text-slate-500 mb-6">WhatsApp has opened. Our senior counselor will share the scholarship syllabus & demo schedule immediately.</p>
-                <button onClick={() => setSubmitted(false)} className="px-5 py-2 text-xs bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200">
-                  Register Another Student
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleEnquiry} className="space-y-4">
-                <h4 className="text-lg font-bold text-slate-900 mb-4">Admission Counseling Form</h4>
+          {submitted ? (
+            <div className="text-center py-8 space-y-4">
+              <CheckCircle2 className="w-12 h-12 text-[#F59E0B] mx-auto" />
+              <h3 className="text-2xl font-bold">Demo Seat Request Formatted!</h3>
+              <p className="text-xs text-slate-300 max-w-md mx-auto">
+                Your demo pass request has been sent to WhatsApp. Our admissions coordinator will verify your student ID and send class timings.
+              </p>
+              <button
+                onClick={() => setSubmitted(false)}
+                className="px-6 py-2 rounded-full border border-white/20 text-xs font-semibold hover:bg-white/10"
+              >
+                Register Another Student
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleDemoSubmit} className="space-y-6">
+              <div className="grid sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Student Full Name *</label>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-slate-300 mb-2">
+                    Student Full Name *
+                  </label>
                   <input
-                    required
                     type="text"
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    placeholder="e.g. Varun Teja"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:border-teal-500"
+                    required
+                    placeholder="e.g. Sai Teja Sharma"
+                    value={demoReg.studentName}
+                    onChange={(e) => setDemoReg({ ...demoReg, studentName: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#142340] border border-white/20 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#F59E0B]"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Parent's WhatsApp *</label>
-                    <input
-                      required
-                      type="tel"
-                      value={form.phone}
-                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                      placeholder="10-digit number"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:border-teal-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Current Class</label>
-                    <select
-                      value={form.studentClass}
-                      onChange={(e) => setForm({ ...form, studentClass: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:border-teal-500"
-                    >
-                      <option>Class 9 & 10 Foundation</option>
-                      <option>Class 11</option>
-                      <option>Class 12</option>
-                      <option>Long Term (Dropper)</option>
-                      <option>College / Working Pro</option>
-                    </select>
-                  </div>
-                </div>
+
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">Course Desired</label>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-slate-300 mb-2">
+                    Parent WhatsApp Phone *
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="+91 98765 43210"
+                    value={demoReg.parentPhone}
+                    onChange={(e) => setDemoReg({ ...demoReg, parentPhone: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#142340] border border-white/20 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#F59E0B]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-slate-300 mb-2">
+                    Target Academic Stream
+                  </label>
                   <select
-                    value={form.course}
-                    onChange={(e) => setForm({ ...form, course: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:border-teal-500"
+                    value={demoReg.targetStream}
+                    onChange={(e) => setDemoReg({ ...demoReg, targetStream: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#142340] border border-white/20 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#F59E0B]"
                   >
-                    {courses.map((c) => (
-                      <option key={c.name} value={c.name}>{c.name}</option>
-                    ))}
+                    <option>2-Year Integrated JEE Advanced (Class 11)</option>
+                    <option>2-Year Integrated NEET Medical (Class 11)</option>
+                    <option>1-Year Repeater/Dropper Batch</option>
+                    <option>Foundation Olympiads (Class 8th to 10th)</option>
                   </select>
                 </div>
-                <button
-                  type="submit"
-                  className="w-full py-3.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl text-sm transition shadow mt-2"
-                >
-                  Book Counseling on WhatsApp 🎓
-                </button>
-              </form>
-            )}
-          </div>
+
+                <div>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-slate-300 mb-2">
+                    Preferred Campus
+                  </label>
+                  <select
+                    value={demoReg.campus}
+                    onChange={(e) => setDemoReg({ ...demoReg, campus: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#142340] border border-white/20 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[#F59E0B]"
+                  >
+                    <option>Madhapur Campus (Near Metro Station)</option>
+                    <option>Dilsukhnagar Campus (Main Road)</option>
+                  </select>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-4 rounded-xl bg-[#F59E0B] hover:bg-amber-400 text-black font-bold text-xs uppercase tracking-[0.2em] transition-colors shadow-lg"
+              >
+                Confirm Demo Seat on WhatsApp
+              </button>
+            </form>
+          )}
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-8 text-center text-xs text-slate-500">
-        <p className="mb-2">BrightMind Academy & Coaching • Hyderabad Campuses • Demo Project by PIXORA DIGITAL</p>
-        <Link to="/" className="text-teal-700 hover:underline">Want a website built for your educational institute or school? Contact PIXORA DIGITAL →</Link>
+      <footer className="bg-[#060D1A] text-[#71829D] py-12 border-t border-[#18263E] text-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p>© {new Date().getFullYear()} Ascent Academy of Sciences. All rights reserved.</p>
+          <p className="font-mono text-[11px] text-[#8C9BB4]">Sample Business Website Concept engineered by PIXORA DIGITAL</p>
+        </div>
       </footer>
     </div>
   )

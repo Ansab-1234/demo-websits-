@@ -1,319 +1,544 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Star, Clock, MapPin, Phone, CheckCircle2, ArrowLeft, Shield, Calendar, Award } from 'lucide-react'
+import {
+  ArrowLeft,
+  Clock,
+  MapPin,
+  Phone,
+  ShieldCheck,
+  CheckCircle2,
+  Calendar,
+  Sparkles,
+  ChevronRight,
+  Activity,
+  Award,
+  AlertCircle
+} from 'lucide-react'
+import { getWhatsAppUrl, PHONE_DISPLAY } from '../../lib/constants'
 
-const WA_URL = 'https://wa.me/918121507323'
+interface Treatment {
+  name: string
+  category: string
+  fee: string
+  sessions: string
+  warranty: string
+  desc: string
+  isPopular?: boolean
+}
 
-const treatments = [
-  { name: 'Painless Laser Root Canal (RCT)', desc: 'Advanced single-sitting rotary endodontics with zero discomfort', price: '₹3,500 – ₹5,500', icon: '⚡', time: '45 mins' },
-  { name: 'Teeth Whitening & Brightening', desc: 'LED in-office whitening for instant 4-6 shades whiter sparkling teeth', price: '₹4,000 – ₹7,000', icon: '✨', time: '60 mins' },
-  { name: 'Dental Implants (Titanium & Zirconia)', desc: 'Permanent lifetime warranty replacement for missing single or full teeth', price: '₹18,000 – ₹35,000', icon: '🔩', time: '2 visits' },
-  { name: 'Invisible Clear Aligners', desc: 'Custom clear aligners to straighten teeth discreetly without metal braces', price: '₹35,000 – ₹80,000', icon: '😁', time: '6-12 months' },
-  { name: 'Ceramic Crown & Bridges', desc: 'High strength CAD/CAM designed natural looking tooth crowns', price: '₹4,500 – ₹9,000', icon: '👑', time: '2 visits' },
-  { name: 'Kids Dental & Preventive Care', desc: 'Gentle pediatric fluoride application, pit & fissure sealants and cavity care', price: '₹800 – ₹1,800', icon: '🧸', time: '30 mins' },
+const treatments: Treatment[] = [
+  {
+    name: 'Swiss Straumann Dental Implants',
+    category: 'Implantology',
+    fee: '₹28,000 – ₹45,000',
+    sessions: 'Single-Sitting Placement',
+    warranty: 'Lifetime Global Warranty',
+    desc: 'Grade-4 titanium & zirconia immediate-load implants guided by high-precision 3D CBCT digital tomographic navigation.',
+    isPopular: true,
+  },
+  {
+    name: 'Invisalign® Clear Orthodontic Aligners',
+    category: 'Orthodontics',
+    fee: '₹65,000 – ₹1,80,000',
+    sessions: 'Custom Series of Trays',
+    warranty: '5-Year Alignment Guarantee',
+    desc: 'Nearly invisible, removable teeth straightening without metal brackets or dietary restrictions. 3D digital outcome simulation.',
+    isPopular: true,
+  },
+  {
+    name: 'Microscopic Single-Visit Root Canal',
+    category: 'Endodontics',
+    fee: '₹4,500 – ₹7,500',
+    sessions: '1 Visit (60 Mins)',
+    warranty: 'Standard Treatment Guarantee',
+    desc: 'Completed under Zeiss surgical operating microscopes with rotary titanium files and bioceramic thermal obturation.',
+  },
+  {
+    name: 'German E.max® Ceramic Smile Veneers',
+    category: 'Cosmetic Dentistry',
+    fee: '₹12,000 / Tooth',
+    sessions: '2 Visits',
+    warranty: '10-Year Fracture Warranty',
+    desc: 'Ultra-thin lithium disilicate porcelain veneers custom-layered for natural tooth enamel translucency and Hollywood alignment.',
+  },
+  {
+    name: 'Zoom 4® In-Office Laser Teeth Whitening',
+    category: 'Cosmetic Dentistry',
+    fee: '₹9,500',
+    sessions: '45 Minutes',
+    warranty: 'Up to 8 Shades Lighter',
+    desc: 'Cold LED light-activated hydrogen peroxide gel with built-in ACP enamel desensitizer for zero post-procedure sensitivity.',
+  },
+  {
+    name: 'Digital Pediatric Fluoride & Pit Sealants',
+    category: 'Pediatric Care',
+    fee: '₹1,500 – ₹3,000',
+    sessions: '30 Minutes',
+    warranty: 'Cavity Prevention Protocol',
+    desc: 'Gentle, anxiety-free dental screenings for children using laughing gas (Nitrous Oxide) analgesia where needed.',
+  },
 ]
 
 const doctors = [
-  { name: 'Dr. Arjun Verma, MDS', title: 'Chief Implantologist & Cosmetic Dentist', exp: '14+ Yrs Exp • Ex-Osmania', emoji: '👨‍⚕️' },
-  { name: 'Dr. Sneha Kulkarni, MDS', title: 'Orthodontist & Clear Aligner Specialist', exp: '10+ Yrs Exp • Certified Invisalign', emoji: '👩‍⚕️' },
-  { name: 'Dr. Rajesh Nambiar, BDS, MDS', title: 'Endodontist & Laser Specialist', exp: '9+ Yrs Exp • Single-Sitting RCT', emoji: '👨‍⚕️' },
-]
-
-const reviews = [
-  { name: 'Kavita Menon', text: 'Dr. Arjun made my root canal completely painless. Extremely sanitized clinic with world-class digital scanners.', rating: 5, date: '2 weeks ago' },
-  { name: 'Siddharth Rao', text: 'Got my clear aligners from Dr. Sneha. Halfway through my treatment and the results are already incredible!', rating: 5, date: '1 month ago' },
-  { name: 'Pooja Reddy', text: 'Very friendly team and clean environment. They explained the treatment plan clearly with transparent pricing.', rating: 5, date: '3 weeks ago' },
+  {
+    name: 'Dr. Aditya Varma, MDS',
+    role: 'Chief Implantologist & Oral Surgeon',
+    credentials: 'BDS, MDS (Prosthodontics), Fellow ICOI (USA)',
+    experience: '14+ Years Clinical Experience • Over 3,500 Implants Placed',
+    image: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=600&h=700&fit=crop',
+  },
+  {
+    name: 'Dr. Shalini Reddy, MDS',
+    role: 'Lead Orthodontist & Dentofacial Orthopedics',
+    credentials: 'BDS, MDS (AIIMS New Delhi), Certified Invisalign Diamond Provider',
+    experience: '11+ Years Experience • 1,200+ Clear Aligner Cases',
+    image: 'https://images.unsplash.com/photo-1594824813512-32a220bd6219?w=600&h=700&fit=crop',
+  },
 ]
 
 export default function DentalPreview() {
-  const [form, setForm] = useState({ name: '', phone: '', treatment: '', date: '', time: 'Morning' })
+  const [selectedCategory, setSelectedCategory] = useState('All Procedures')
+  const [appointment, setAppointment] = useState({
+    name: '',
+    phone: '',
+    concern: 'Dental Implants Consultation',
+    preferredDoctor: 'Dr. Aditya Varma, MDS',
+    date: '',
+    time: '11:00 AM',
+  })
   const [submitted, setSubmitted] = useState(false)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const filteredTreatments = selectedCategory === 'All Procedures'
+    ? treatments
+    : treatments.filter((t) => t.category === selectedCategory)
+
+  const handleBooking = (e: React.FormEvent) => {
     e.preventDefault()
-    const msg = `Hello BrightSmile Dental Care! I want to schedule an appointment:\n• Patient Name: ${form.name}\n• Phone: ${form.phone}\n• Treatment: ${form.treatment || 'General Checkup'}\n• Preferred Date: ${form.date || 'Earliest available'}\n• Preferred Time: ${form.time}`
-    window.open(`${WA_URL}?text=${encodeURIComponent(msg)}`, '_blank')
+    if (!appointment.name || !appointment.phone || !appointment.date) return
+    const msg = `Hello Aura Dental Institute!
+I would like to book a dental consultation appointment:
+• Patient Name: ${appointment.name}
+• Contact: ${appointment.phone}
+• Dental Concern: ${appointment.concern}
+• Preferred Doctor: ${appointment.preferredDoctor}
+• Date & Time: ${appointment.date} at ${appointment.time}
+Please confirm consultation availability!`
+
+    window.open(getWhatsAppUrl(msg), '_blank')
     setSubmitted(true)
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800">
-      {/* Top Demo Banner */}
-      <div className="bg-gradient-to-r from-teal-600 via-cyan-600 to-blue-600 text-white text-center py-2.5 px-4 text-xs font-semibold flex items-center justify-between">
-        <Link to="/" className="inline-flex items-center gap-1.5 opacity-90 hover:opacity-100">
-          <ArrowLeft className="w-3.5 h-3.5" /> Back to PIXORA
+    <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] font-sans selection:bg-[#0284C7] selection:text-white">
+      {/* Top Agency Demo Navigation Bar */}
+      <div className="bg-[#0F172A] text-[#94A3B8] px-4 py-2 text-xs flex items-center justify-between border-b border-[#1E293B]">
+        <Link to="/our-work" className="inline-flex items-center gap-1.5 hover:text-white transition-colors">
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to PIXORA Showcase</span>
         </Link>
-        <span>🦷 Sample Dental Clinic Website Demo — Customized for your practice</span>
-        <a href={`${WA_URL}?text=Hi! I want a dental/healthcare website like your BrightSmile demo.`} target="_blank" rel="noopener noreferrer" className="bg-white text-cyan-700 px-3 py-1 rounded-full text-xs font-bold hover:bg-cyan-50 transition">
-          Build My Clinic Website
+        <span className="hidden sm:inline font-mono tracking-widest uppercase text-[10px] text-[#38BDF8]">
+          Industry Showcase: Multispeciality Dental Surgery & Implant Center
+        </span>
+        <a
+          href={getWhatsAppUrl("Hello PIXORA DIGITAL! I explored your Aura Dental Clinic demo. I'd like to build a clean medical website for my dental clinic.")}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[#38BDF8] hover:underline font-semibold"
+        >
+          Build Website for My Clinic →
         </a>
       </div>
 
-      {/* Clinic Navbar */}
-      <nav className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-xl shadow-md text-white">
-              🦷
-            </div>
-            <div>
-              <h1 className="text-xl font-black text-slate-900 tracking-tight">BrightSmile Dental</h1>
-              <p className="text-[11px] text-cyan-600 font-semibold tracking-wide">Advanced Digital Multispeciality Clinic</p>
-            </div>
+      {/* Emergency & Clinic Timings Strip */}
+      <div className="border-b border-[#E2E8F0] bg-white px-4 py-2.5 text-xs text-[#64748B]">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+          <div className="flex items-center gap-6">
+            <span className="flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-[#0284C7]" />
+              Opp. Mindspace IT Park, Hitec City, Hyderabad
+            </span>
+            <span className="hidden md:flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-[#0284C7]" />
+              Mon – Sat: 9:00 AM – 8:30 PM | Sundays: 10:00 AM – 2:00 PM
+            </span>
           </div>
-          <div className="flex items-center gap-3">
-            <a href="tel:+918121507323" className="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-cyan-600 transition">
-              <Phone className="w-3.5 h-3.5" /> +91 81215 07323
-            </a>
-            <a
-              href="#appointment"
-              className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white text-xs font-bold rounded-xl shadow transition"
-            >
-              Book Consultation
-            </a>
-          </div>
+          <span className="font-semibold text-[#0F172A] flex items-center gap-1.5">
+            <AlertCircle className="w-3.5 h-3.5 text-rose-500" />
+            24/7 Dental Emergency Helpline: {PHONE_DISPLAY}
+          </span>
         </div>
-      </nav>
+      </div>
 
-      {/* Hero */}
-      <section className="relative bg-gradient-to-b from-cyan-900 via-slate-900 to-slate-950 text-white py-20 px-4 overflow-hidden">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/20 border border-cyan-400/30 text-cyan-300 text-xs font-semibold mb-6">
-              <Shield className="w-3.5 h-3.5 text-cyan-400" /> NABH Accredited & 100% Sterile Standards
+      {/* Clinic Header */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-[#E2E8F0]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-[#0284C7] text-white flex items-center justify-center font-bold text-lg shadow-md shadow-blue-500/20">
+              <Activity className="w-5 h-5" />
             </div>
-            <h2 className="text-4xl sm:text-5xl font-black text-white mb-6 leading-tight">
-              Gentle, Pain-Free <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-blue-300">
-                Dental Care You Can Trust.
+            <div className="flex flex-col">
+              <span className="font-bold text-xl tracking-tight text-[#0F172A]">
+                AURA DENTAL
               </span>
-            </h2>
-            <p className="text-slate-300 text-base mb-8 leading-relaxed max-w-lg">
-              Equipped with German 3D digital scanners, low-radiation CBCT imaging, and pain-free laser technology in Gachibowli, Hyderabad.
+              <span className="text-[10px] uppercase font-mono tracking-wider text-[#0284C7] font-semibold">
+                Multispeciality Clinic & 3D Implant Center
+              </span>
+            </div>
+          </div>
+
+          <nav className="hidden lg:flex items-center gap-8 text-xs font-semibold uppercase tracking-wider text-[#64748B]">
+            <a href="#procedures" className="hover:text-[#0284C7] transition-colors">Treatments & Fees</a>
+            <a href="#doctors" className="hover:text-[#0284C7] transition-colors">Specialist Doctors</a>
+            <a href="#technology" className="hover:text-[#0284C7] transition-colors">3D CBCT Technology</a>
+            <a href="#book" className="hover:text-[#0284C7] transition-colors">Book Consult</a>
+          </nav>
+
+          <a
+            href="#book"
+            className="px-5 py-2.5 rounded-full bg-[#0284C7] text-white text-xs font-bold tracking-wider uppercase hover:bg-sky-700 transition-colors shadow-md shadow-sky-600/20"
+          >
+            Zero-Wait Appointment
+          </a>
+        </div>
+      </header>
+
+      {/* Hero: Reassuring Healthcare Experience */}
+      <section className="py-20 lg:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-12 gap-12 items-center">
+          <div className="lg:col-span-7 space-y-6">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-sky-50 border border-sky-200 text-xs font-semibold text-sky-800">
+              <ShieldCheck className="w-4 h-4 text-[#0284C7]" />
+              Hospital-Grade 6-Stage Autoclave Sterilization Protocols
+            </div>
+            <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-[#0F172A] leading-[1.08]">
+              Precision digital dentistry. <br />
+              <span className="text-[#0284C7]">Zero anxiety.</span> Complete fee transparency.
+            </h1>
+            <p className="text-base sm:text-lg text-[#475569] leading-relaxed max-w-xl font-normal">
+              State-of-the-art dental care in Hitec City. Featuring 3D digital oral scanners, computerized painless local anesthesia, and certified Swiss implant specialists.
             </p>
-            <div className="flex flex-wrap gap-3.5">
-              <a href="#appointment" className="px-6 py-3.5 bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold rounded-xl shadow-lg transition">
-                Book Consultation
+            <div className="pt-4 flex flex-wrap gap-4">
+              <a
+                href="#book"
+                className="px-8 py-4 rounded-full bg-[#0284C7] hover:bg-sky-700 text-white text-xs font-bold uppercase tracking-widest transition-colors shadow-lg shadow-sky-600/25"
+              >
+                Schedule Consultation
               </a>
               <a
-                href={`${WA_URL}?text=Hello BrightSmile! I'd like to ask a question regarding dental treatment.`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-6 py-3.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-semibold rounded-xl transition"
+                href="#procedures"
+                className="px-8 py-4 rounded-full border border-[#CBD5E1] bg-white text-[#0F172A] text-xs font-bold uppercase tracking-widest hover:bg-slate-50 transition-colors shadow-xs"
               >
-                Chat on WhatsApp
+                Explore Treatments & Fees
               </a>
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl">
-              <Award className="w-8 h-8 text-cyan-400 mb-2" />
-              <div className="text-2xl font-black text-white">12,000+</div>
-              <div className="text-xs text-slate-400 mt-1">Happy Smiles Restored</div>
-            </div>
-            <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl">
-              <Star className="w-8 h-8 text-amber-400 mb-2 fill-amber-400" />
-              <div className="text-2xl font-black text-white">4.9 / 5.0</div>
-              <div className="text-xs text-slate-400 mt-1">From 950+ Reviews</div>
-            </div>
-            <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl">
-              <Clock className="w-8 h-8 text-cyan-400 mb-2" />
-              <div className="text-2xl font-black text-white">Zero Wait</div>
-              <div className="text-xs text-slate-400 mt-1">Guaranteed Appointments</div>
-            </div>
-            <div className="bg-slate-800/80 border border-slate-700 p-5 rounded-2xl">
-              <Shield className="w-8 h-8 text-emerald-400 mb-2" />
-              <div className="text-2xl font-black text-white">100% Sterile</div>
-              <div className="text-xs text-slate-400 mt-1">Class-B Autoclave Protocol</div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Treatments Grid */}
-      <section className="max-w-6xl mx-auto px-4 py-20">
-        <div className="text-center mb-14">
-          <span className="text-cyan-600 text-xs font-bold uppercase tracking-widest">Our Expertise</span>
-          <h3 className="text-3xl font-black text-slate-900 mt-2 mb-3">Multispeciality Dental Procedures</h3>
-          <p className="text-slate-500 text-sm max-w-xl mx-auto">
-            From routine checkups and cleanings to complex full-mouth digital restorations.
-          </p>
-        </div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {treatments.map((t) => (
-            <div key={t.name} className="bg-white rounded-2xl p-6 border border-slate-200/80 shadow-sm hover:border-cyan-400 hover:shadow-md transition flex flex-col justify-between">
+            <div className="grid grid-cols-3 gap-6 pt-8 border-t border-[#E2E8F0] max-w-lg">
               <div>
-                <div className="text-3xl mb-3">{t.icon}</div>
-                <h4 className="text-base font-bold text-slate-900 mb-1.5">{t.name}</h4>
-                <p className="text-xs text-slate-600 leading-relaxed mb-4">{t.desc}</p>
+                <span className="text-2xl sm:text-3xl font-black font-mono text-[#0F172A] block">100%</span>
+                <span className="text-xs text-[#64748B]">Digital Workflow</span>
               </div>
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                <div>
-                  <span className="text-xs text-slate-400 block">Est. Cost</span>
-                  <span className="text-sm font-bold text-cyan-700">{t.price}</span>
-                </div>
-                <a
-                  href={`${WA_URL}?text=Hello BrightSmile! I want to enquire about *${encodeURIComponent(t.name)}*. Please share details.`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3.5 py-1.5 bg-cyan-50 hover:bg-cyan-100 text-cyan-700 text-xs font-bold rounded-lg transition"
-                >
-                  Enquire →
-                </a>
+              <div>
+                <span className="text-2xl sm:text-3xl font-black font-mono text-[#0F172A] block">3,500+</span>
+                <span className="text-xs text-[#64748B]">Implants Placed</span>
+              </div>
+              <div>
+                <span className="text-2xl sm:text-3xl font-black font-mono text-[#0F172A] block">Zero</span>
+                <span className="text-xs text-[#64748B]">Waiting Policy</span>
               </div>
             </div>
-          ))}
+          </div>
+
+          <div className="lg:col-span-5 relative">
+            <div className="rounded-3xl overflow-hidden shadow-2xl border-4 border-white aspect-[4/3] bg-white group">
+              <img
+                src="https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=900&h=700&fit=crop"
+                alt="Modern Dental Clinic Room"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6 text-white">
+                <span className="text-[10px] font-mono tracking-widest uppercase text-sky-200">Clinical Hygiene</span>
+                <h3 className="text-xl font-bold">Class-B Vacuum Autoclave Certified</h3>
+                <p className="text-xs text-slate-200 mt-1">Single-use disposables & sealed surgical instrument pouches</p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Doctor Profiles */}
-      <section className="bg-white border-y border-slate-200 py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-14">
-            <span className="text-cyan-600 text-xs font-bold uppercase tracking-widest">Medical Team</span>
-            <h3 className="text-3xl font-black text-slate-900 mt-2 mb-3">Meet Our Senior Dental Specialists</h3>
-            <p className="text-slate-500 text-sm">Specialists trained at premier Indian and international institutes.</p>
+      {/* Treatments & Transparent Fee Schedule */}
+      <section id="procedures" className="py-24 bg-white border-t border-[#E2E8F0]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+            <div>
+              <span className="text-xs uppercase font-mono tracking-[0.25em] text-[#0284C7] font-bold block mb-2">
+                Ethical Healthcare
+              </span>
+              <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[#0F172A]">
+                Transparent Fee Schedule
+              </h2>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {['All Procedures', 'Implantology', 'Orthodontics', 'Endodontics', 'Cosmetic Dentistry'].map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all ${
+                    selectedCategory === cat
+                      ? 'bg-[#0284C7] text-white shadow-md'
+                      : 'bg-slate-100 text-[#64748B] hover:text-[#0F172A]'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="grid sm:grid-cols-3 gap-6">
-            {doctors.map((d) => (
-              <div key={d.name} className="bg-slate-50 border border-slate-200/80 rounded-2xl p-6 text-center hover:shadow transition">
-                <div className="text-5xl mb-4">{d.emoji}</div>
-                <h4 className="text-base font-bold text-slate-900 mb-1">{d.name}</h4>
-                <p className="text-xs font-semibold text-cyan-600 mb-2">{d.title}</p>
-                <p className="text-xs text-slate-500">{d.exp}</p>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredTreatments.map((t) => (
+              <div
+                key={t.name}
+                className="bg-[#F8FAFC] rounded-3xl p-8 border border-[#E2E8F0] hover:border-[#0284C7] transition-all duration-300 shadow-xs flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#0284C7] bg-sky-100 px-2.5 py-1 rounded-full">
+                      {t.category}
+                    </span>
+                    {t.isPopular && (
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full">
+                        Popular Choice
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="text-xl font-bold text-[#0F172A] mb-2 leading-snug">
+                    {t.name}
+                  </h3>
+
+                  <div className="my-4 py-3 border-y border-[#E2E8F0] space-y-1 text-xs text-[#475569]">
+                    <p><strong>Treatment Fee:</strong> <span className="font-mono font-bold text-[#0284C7] text-sm">{t.fee}</span></p>
+                    <p><strong>Duration / Visits:</strong> {t.sessions}</p>
+                    <p><strong>Warranty Terms:</strong> {t.warranty}</p>
+                  </div>
+
+                  <p className="text-xs text-[#64748B] leading-relaxed">
+                    {t.desc}
+                  </p>
+                </div>
+
+                <div className="pt-6 border-t border-[#E2E8F0] mt-6 flex items-center justify-between">
+                  <span className="text-[11px] text-[#94A3B8]">0% Interest EMI Available</span>
+                  <a
+                    href={getWhatsAppUrl(`Hello Aura Dental! I would like to book a consultation for "${t.name}" (${t.fee}). Please share doctor appointment slots.`)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-bold text-[#0284C7] hover:underline flex items-center gap-1"
+                  >
+                    <span>Inquire via WhatsApp</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </a>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Appointment Form & Reviews */}
-      <section id="appointment" className="max-w-6xl mx-auto px-4 py-20">
-        <div className="grid md:grid-cols-2 gap-12 items-start">
-          <div>
-            <span className="text-cyan-600 text-xs font-bold uppercase tracking-widest">Book Your Visit</span>
-            <h3 className="text-3xl font-black text-slate-900 mt-2 mb-4">Consultation Request</h3>
-            <p className="text-slate-600 text-sm mb-6 leading-relaxed">
-              Schedule your checkup in 30 seconds. We confirm all appointments with instant WhatsApp reminders.
-            </p>
+      {/* Specialist Doctors Roster */}
+      <section id="doctors" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-2xl mb-12">
+          <span className="text-xs uppercase font-mono tracking-[0.25em] text-[#0284C7] font-bold block mb-2">
+            Specialist Faculty
+          </span>
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[#0F172A]">
+            Consult with Senior MDS Specialists
+          </h2>
+          <p className="text-sm text-[#475569] mt-3">
+            We do not rotate general dentists. Complex root canals, implants, and aligners are performed exclusively by certified postgraduate specialists.
+          </p>
+        </div>
 
-            <div className="bg-white border border-slate-200 p-6 sm:p-8 rounded-3xl shadow-sm">
-              {submitted ? (
-                <div className="text-center py-8">
-                  <CheckCircle2 className="w-14 h-14 text-emerald-500 mx-auto mb-3" />
-                  <h4 className="text-xl font-bold text-slate-900 mb-2">Request Delivered!</h4>
-                  <p className="text-xs text-slate-500 mb-6">WhatsApp has opened with your request details. Our care coordinator will confirm your exact slot immediately.</p>
-                  <button onClick={() => setSubmitted(false)} className="px-5 py-2 text-xs bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200">
-                    Submit Another Request
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Patient Name *</label>
-                    <input
-                      required
-                      type="text"
-                      value={form.name}
-                      onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      placeholder="e.g. Ramesh Kumar"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">WhatsApp Phone *</label>
-                    <input
-                      required
-                      type="tel"
-                      value={form.phone}
-                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                      placeholder="10-digit mobile number"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:border-cyan-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">Treatment Required</label>
-                    <select
-                      value={form.treatment}
-                      onChange={(e) => setForm({ ...form, treatment: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:border-cyan-500"
-                    >
-                      <option value="">General Consultation / Checkup</option>
-                      {treatments.map((t) => (
-                        <option key={t.name} value={t.name}>{t.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">Preferred Date</label>
-                      <input
-                        type="date"
-                        value={form.date}
-                        onChange={(e) => setForm({ ...form, date: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:border-cyan-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">Preferred Time</label>
-                      <select
-                        value={form.time}
-                        onChange={(e) => setForm({ ...form, time: e.target.value })}
-                        className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:border-cyan-500"
-                      >
-                        <option>Morning (10 AM - 1 PM)</option>
-                        <option>Afternoon (2 PM - 5 PM)</option>
-                        <option>Evening (5 PM - 8 PM)</option>
-                      </select>
-                    </div>
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 text-white font-bold rounded-xl text-sm transition shadow mt-2"
-                  >
-                    Confirm via WhatsApp
-                  </button>
-                </form>
-              )}
-            </div>
-          </div>
-
-          <div>
-            <span className="text-cyan-600 text-xs font-bold uppercase tracking-widest">Patient Reviews</span>
-            <h3 className="text-3xl font-black text-slate-900 mt-2 mb-4">What Our Patients Say</h3>
-            <div className="space-y-4">
-              {reviews.map((r) => (
-                <div key={r.name} className="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-bold text-slate-900 text-sm">{r.name}</span>
-                    <span className="text-[11px] text-slate-400">{r.date}</span>
-                  </div>
-                  <div className="flex gap-1 text-amber-400 mb-2">
-                    {[...Array(r.rating)].map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />
-                    ))}
-                  </div>
-                  <p className="text-xs text-slate-600 leading-relaxed italic">"{r.text}"</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 bg-cyan-50 border border-cyan-200/80 p-5 rounded-2xl text-xs text-cyan-900 space-y-2">
-              <div className="font-bold flex items-center gap-1.5 text-cyan-950">
-                <MapPin className="w-4 h-4 text-cyan-600" /> Clinic Address:
+        <div className="grid md:grid-cols-2 gap-8">
+          {doctors.map((d) => (
+            <div key={d.name} className="flex flex-col sm:flex-row gap-6 p-6 rounded-3xl bg-white border border-[#E2E8F0] shadow-sm">
+              <div className="w-full sm:w-48 h-56 rounded-2xl overflow-hidden bg-slate-100 flex-shrink-0">
+                <img
+                  src={d.image}
+                  alt={d.name}
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <p>Plot 48, Telecom Nagar, Gachibowli, Hyderabad, Telangana 500032</p>
-              <p className="text-cyan-800">Timings: Mon - Sat: 9:30 AM to 8:30 PM | Sunday: 10:00 AM to 2:00 PM</p>
+              <div className="flex flex-col justify-between">
+                <div>
+                  <h3 className="text-xl font-bold text-[#0F172A]">{d.name}</h3>
+                  <p className="text-xs font-bold text-[#0284C7] mt-0.5">{d.role}</p>
+                  <p className="text-xs text-[#64748B] mt-2 font-mono">{d.credentials}</p>
+                  <p className="text-xs text-[#475569] mt-3 leading-relaxed">{d.experience}</p>
+                </div>
+                <div className="pt-4 border-t border-[#E2E8F0] mt-4">
+                  <a
+                    href={getWhatsAppUrl(`Hello Aura Dental! I would like to book a direct consultation with ${d.name}.`)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0284C7] hover:underline"
+                  >
+                    <span>Book with {d.name.split(',')[0]}</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
             </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Appointment Suite */}
+      <section id="book" className="py-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-3xl p-8 sm:p-12 border border-[#CBD5E1] shadow-xl">
+          <div className="text-center max-w-xl mx-auto mb-10">
+            <span className="text-xs uppercase font-mono tracking-[0.25em] text-[#0284C7] font-bold block mb-2">
+              Zero-Wait Booking
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[#0F172A]">
+              Schedule Your Dental Consultation
+            </h2>
+            <p className="text-xs sm:text-sm text-[#475569] mt-2">
+              We respect your schedule. Confirmed appointments have an average wait time under 10 minutes.
+            </p>
           </div>
+
+          {submitted ? (
+            <div className="text-center py-8 space-y-4">
+              <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
+              <h3 className="text-2xl font-bold">Appointment Request Formatted!</h3>
+              <p className="text-xs text-[#475569] max-w-md mx-auto">
+                Your appointment details have been dispatched to WhatsApp. Tap send to confirm your slot with our clinic receptionist.
+              </p>
+              <button
+                onClick={() => setSubmitted(false)}
+                className="px-6 py-2 rounded-full border border-slate-300 text-xs font-semibold hover:bg-slate-50"
+              >
+                Book Another Appointment
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleBooking} className="space-y-6">
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-[#475569] mb-2">
+                    Patient Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Sravan Kumar"
+                    value={appointment.name}
+                    onChange={(e) => setAppointment({ ...appointment, name: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#F8FAFC] border border-[#CBD5E1] text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-[#475569] mb-2">
+                    Phone (WhatsApp) *
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="+91 98765 43210"
+                    value={appointment.phone}
+                    onChange={(e) => setAppointment({ ...appointment, phone: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#F8FAFC] border border-[#CBD5E1] text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-[#475569] mb-2">
+                    Primary Dental Concern
+                  </label>
+                  <select
+                    value={appointment.concern}
+                    onChange={(e) => setAppointment({ ...appointment, concern: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#F8FAFC] border border-[#CBD5E1] text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                  >
+                    <option>Dental Implants Consultation</option>
+                    <option>Invisalign® Aligners Assessment</option>
+                    <option>Single-Visit Root Canal Therapy</option>
+                    <option>Cosmetic Smile Veneers Consultation</option>
+                    <option>Routine Checkup & Digital X-Ray</option>
+                    <option>Emergency Tooth Pain Care</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-[#475569] mb-2">
+                    Preferred Doctor
+                  </label>
+                  <select
+                    value={appointment.preferredDoctor}
+                    onChange={(e) => setAppointment({ ...appointment, preferredDoctor: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#F8FAFC] border border-[#CBD5E1] text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                  >
+                    <option>Dr. Aditya Varma, MDS (Implantologist)</option>
+                    <option>Dr. Shalini Reddy, MDS (Orthodontist)</option>
+                    <option>First Available Senior Specialist</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-[#475569] mb-2">
+                    Appointment Date *
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={appointment.date}
+                    onChange={(e) => setAppointment({ ...appointment, date: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#F8FAFC] border border-[#CBD5E1] text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-[#475569] mb-2">
+                    Preferred Time Slot
+                  </label>
+                  <select
+                    value={appointment.time}
+                    onChange={(e) => setAppointment({ ...appointment, time: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#F8FAFC] border border-[#CBD5E1] text-sm text-[#0F172A] focus:outline-none focus:ring-2 focus:ring-[#0284C7]"
+                  >
+                    <option>10:00 AM (Morning)</option>
+                    <option>11:30 AM (Midday)</option>
+                    <option>02:30 PM (Afternoon)</option>
+                    <option>05:00 PM (Evening)</option>
+                    <option>07:00 PM (Post-Work Slot)</option>
+                  </select>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-4 rounded-xl bg-[#0284C7] hover:bg-sky-700 text-white font-bold text-xs uppercase tracking-[0.2em] transition-colors shadow-lg shadow-sky-600/25"
+              >
+                Confirm Appointment via WhatsApp
+              </button>
+            </form>
+          )}
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-200 bg-white py-8 text-center text-xs text-slate-500">
-        <p className="mb-2">BrightSmile Dental Care • Gachibowli, Hyderabad • Demo Project by PIXORA DIGITAL</p>
-        <Link to="/" className="text-cyan-600 hover:underline">Want a website built for your clinic? Contact PIXORA DIGITAL →</Link>
+      <footer className="bg-[#0F172A] text-[#94A3B8] py-12 border-t border-[#1E293B] text-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p>© {new Date().getFullYear()} Aura Multispeciality Dental Institute. All rights reserved.</p>
+          <p className="font-mono text-[11px] text-[#64748B]">Sample Business Website Concept engineered by PIXORA DIGITAL</p>
+        </div>
       </footer>
     </div>
   )

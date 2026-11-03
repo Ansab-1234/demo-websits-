@@ -1,678 +1,1199 @@
-import { useState, useEffect } from 'react'
+import { useState, useRef, lazy, Suspense } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowRight, Check, Star, Zap, Globe, Shield, ChevronDown } from 'lucide-react'
-import { getWhatsAppUrl, WA_MESSAGES, INDUSTRIES, PHONE_NUMBER, PHONE_DISPLAY } from '../lib/constants'
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Sparkles,
+  CheckCircle2,
+  ChevronDown,
+  Monitor,
+  Tablet,
+  Smartphone,
+  Maximize2,
+  Scissors,
+  UtensilsCrossed,
+  Shirt,
+  Armchair,
+  Activity,
+  Dumbbell,
+  Building2,
+  Car,
+  Camera,
+  GraduationCap,
+  Send,
+  ShieldCheck,
+  Zap,
+  Globe,
+  Clock,
+  MessageSquare,
+  Layers,
+  Code2,
+  Palette,
+  Phone,
+  ExternalLink,
+  Check,
+  Lock,
+  UserCheck
+} from 'lucide-react'
 
-// ─── Hero Section ───────────────────────────────────────────────────────────
+// Lazy load Three.js 3D kinetic sculpture to keep initial bundle ultra-lean
+const ThreeHeroCanvas = lazy(() => import('../components/ThreeHeroCanvas'))
+import SevenDayProcess from '../components/SevenDayProcess'
+import OwnershipSection from '../components/OwnershipSection'
+
+import {
+  getWhatsAppUrl,
+  WA_MESSAGES,
+  SERVICES,
+  PRICING_PLANS,
+  PHONE_NUMBER_1,
+  PHONE_DISPLAY_1,
+  WHATSAPP_NUMBER_1,
+  PHONE_NUMBER_2,
+  PHONE_DISPLAY_2,
+  WHATSAPP_NUMBER_2,
+  CITY
+} from '../lib/constants'
+
+function ThreeFallback() {
+  return (
+    <div className="w-full h-[450px] sm:h-[550px] lg:h-[620px] flex items-center justify-center p-8">
+      <div className="relative w-64 h-64 rounded-full border border-[#C6A46A]/25 flex items-center justify-center animate-pulse">
+        <div className="absolute inset-4 rounded-full border border-[#C6A46A]/20 animate-spin" style={{ animationDuration: '24s' }} />
+        <div className="w-36 h-36 rounded-3xl bg-gradient-to-tr from-[#191A17] via-[#2A2B26] to-[#C6A46A]/40 rotate-45 shadow-2xl border border-[#C6A46A]/30" />
+      </div>
+    </div>
+  )
+}
+
+// ─── 10 BESPOKE INDUSTRY DEMOS DATA ──────────────────────────────────────────
+
+interface DemoItem {
+  id: string
+  title: string
+  trade: string
+  location: string
+  route: string
+  image: string
+  category: string
+  description: string
+  accent: string
+  highlights: string[]
+}
+
+const FEATURED_DEMOS: DemoItem[] = [
+  {
+    id: 'salon',
+    title: 'Maison de Beauté',
+    trade: 'Luxury Salon & Spa',
+    location: 'Banjara Hills, Hyderabad',
+    route: '/preview/salon',
+    image: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1200&q=80',
+    category: 'Beauty & Wellness',
+    description: 'High-editorial French salon aesthetics with diagnostic treatment menus, master stylist rosters, and direct VIP suite booking.',
+    accent: '#C6A46A',
+    highlights: ['Interactive Treatment Menu', 'Master Stylist Portfolio', 'WhatsApp VIP Booking'],
+  },
+  {
+    id: 'restaurant',
+    title: 'Saffron & Stone',
+    trade: 'Heritage Fine Dining',
+    location: 'Jubilee Hills, Hyderabad',
+    route: '/preview/restaurant',
+    image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80',
+    category: 'Hospitality & Dining',
+    description: 'Cinzel classical typography with terracotta peat charcoal tones, Nizami heritage degustation menus, and seamless table reservations.',
+    accent: '#C6A46A',
+    highlights: ['Categorized Degustation Menu', 'Instant Table Reservation', 'Chef Tasting Notes'],
+  },
+  {
+    id: 'clothing',
+    title: 'Atelier Nouveau',
+    trade: 'Designer Fashion House',
+    location: 'Banjara Hills, Hyderabad',
+    route: '/preview/clothing',
+    image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1200&q=80',
+    category: 'Fashion & Retail',
+    description: 'High-fashion monochrome minimalism with crimson accents, handwoven silk fabric specifications, and bespoke tailoring concierge.',
+    accent: '#C6A46A',
+    highlights: ['Curated Seasonal Lookbook', 'Fabric & Weave Specifications', 'Bespoke Tailoring Concierge'],
+  },
+  {
+    id: 'furniture',
+    title: 'Timber & Arch',
+    trade: 'Architectural Teakwood',
+    location: 'Financial District, Hyderabad',
+    route: '/preview/furniture',
+    image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80',
+    category: 'Home & Living',
+    description: 'Wabi-sabi natural teakwood with mortise & tenon construction details, CAD floorplan consults, and custom showroom inquiries.',
+    accent: '#C6A46A',
+    highlights: ['Mortise & Tenon Craft Details', 'CAD Floorplan Consultations', 'Direct Showroom WhatsApp Inquiry'],
+  },
+  {
+    id: 'dental',
+    title: 'Aura Dental Institute',
+    trade: 'Advanced Dentistry & Implants',
+    location: 'Hitec City, Hyderabad',
+    route: '/preview/dental',
+    image: 'https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=1200&q=80',
+    category: 'Healthcare & Clinical',
+    description: 'Clinical minimalism in ice cyan and obsidian, Straumann implant certifications, Invisalign scan workflows, and senior MDS rosters.',
+    accent: '#C6A46A',
+    highlights: ['Straumann & Invisalign Standards', 'Senior MDS Faculty Roster', 'Zero-Wait Clinical Booking'],
+  },
+  {
+    id: 'gym',
+    title: 'Kinetic Force',
+    trade: 'High-Performance Athletics',
+    location: 'Gachibowli, Hyderabad',
+    route: '/preview/gym',
+    image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=1200&q=80',
+    category: 'Fitness & Sports',
+    description: 'Matte carbon black and amber athletic typography, Eleiko Olympic weightlifting racks, transparent membership matrix, and 1-day pass passes.',
+    accent: '#C6A46A',
+    highlights: ['Eleiko & Hammer Strength Specs', 'Transparent Membership Matrix', '1-Day VIP Pass Generator'],
+  },
+  {
+    id: 'real-estate',
+    title: 'The Elevation Group',
+    trade: 'Luxury Villas & Penthouses',
+    location: 'Neopolis, Kokapet, Hyderabad',
+    route: '/preview/real-estate',
+    image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80',
+    category: 'Real Estate & Living',
+    description: 'Midnight navy and champagne gold, HMDA and RERA verified numbers, private penthouse suites, and chauffeured Mercedes site visits.',
+    accent: '#C6A46A',
+    highlights: ['HMDA & RERA Compliance Badges', 'Architectural Floorplans', 'Chauffeured Site Visit Booking'],
+  },
+  {
+    id: 'automobile',
+    title: 'Apex Labs',
+    trade: 'Supercar Detailing & PPF',
+    location: 'Jubilee Hills, Hyderabad',
+    route: '/preview/automobile',
+    image: 'https://images.unsplash.com/photo-1617814076367-b759c7d7e738?auto=format&fit=crop&w=1200&q=80',
+    category: 'Automotive & Detailing',
+    description: 'Technical carbon and crimson typography, 9H ceramic coating standards, self-healing TPU PPF packages, and instant segment estimation.',
+    accent: '#C6A46A',
+    highlights: ['Self-Healing TPU Film Specs', 'Vehicle Segment Price Matrix', 'Dust-Free Lab Inspection Booking'],
+  },
+  {
+    id: 'photography',
+    title: 'Lumière & Frame',
+    trade: 'Cinematic Photography',
+    location: 'Hyderabad & Global Destinations',
+    route: '/preview/photography',
+    image: 'https://images.unsplash.com/photo-1537633552985-df8429e8048b?auto=format&fit=crop&w=1200&q=80',
+    category: 'Creative Arts & Events',
+    description: 'Darkroom gallery with Cormorant Garamond typography, true photojournalistic storytelling, transparent investment packages, and date availability checker.',
+    accent: '#C6A46A',
+    highlights: ['Darkroom Editorial Gallery', 'Transparent Investment Tiers', 'Date Availability Calendar Check'],
+  },
+  {
+    id: 'education',
+    title: 'Ascent Academy',
+    trade: 'Premier Test Prep & Science',
+    location: 'Madhapur & Dilsukhnagar, Hyderabad',
+    route: '/preview/education',
+    image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=1200&q=80',
+    category: 'Education & Academics',
+    description: 'Scholarly navy and gold, verified IIT Madras and AIIMS faculty pedigree, strictly audited 1:30 small-batch ratios, and free 2-day demo class booking.',
+    accent: '#C6A46A',
+    highlights: ['IIT Madras & AIIMS Pedigree', 'Strict 1:30 Small-Batch Ratio', 'Free 2-Day Demo Class Seat'],
+  },
+]
+
+// ─── 1. HERO SECTION ─────────────────────────────────────────────────────────
 
 function HeroSection() {
-  const [currentStyle, setCurrentStyle] = useState(0)
-  const styles = ['Salon', 'Restaurant', 'Clothing Store', 'Dental Clinic', 'Gym', 'Real Estate']
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentStyle((prev) => (prev + 1) % styles.length)
-    }, 2000)
-    return () => clearInterval(interval)
-  }, [])
-
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950">
-      {/* Background decorations */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-indigo-900/10 rounded-full blur-3xl" />
-        {/* Grid pattern */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-            backgroundSize: '60px 60px',
-          }}
-        />
-      </div>
+    <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden border-b border-black/5 dark:border-white/10 bg-[#FBF9F5] dark:bg-[#10110F]">
+      {/* Subtle Studio Ambient Glow */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[450px] bg-[#C6A46A]/10 dark:bg-[#C6A46A]/12 rounded-full blur-[140px] pointer-events-none" />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20 lg:pt-40 lg:pb-28">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          {/* Left: Text */}
-          <div>
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-sm font-medium mb-8">
-              <Zap className="w-4 h-4" />
-              Hyderabad's Premium Web Development Team
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+          {/* Left Column: Bold Typography & Conversion CTAs */}
+          <div className="lg:col-span-7 space-y-8">
+            {/* Studio Badge */}
+            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-[#EFECE6]/80 dark:bg-[#191A17] border border-black/5 dark:border-white/10 text-[#141512] dark:text-[#F5F0E7] text-xs font-mono font-semibold">
+              <span className="w-2 h-2 rounded-full bg-[#C6A46A] animate-pulse" />
+              <span>PIXORA DIGITAL</span>
+              <span className="text-[#8F8B82] dark:text-[#5A564F]">|</span>
+              <span className="text-[#8E6D3E] dark:text-[#C6A46A] font-bold">HYDERABAD STUDIO</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white leading-tight mb-6">
-              Your Business.{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
-                Your Website.
-              </span>{' '}
-              Your Digital Identity.
+            {/* Main Headline */}
+            <h1 className="text-4xl sm:text-6xl lg:text-[68px] font-black text-[#141512] dark:text-[#F5F0E7] leading-[1.05] tracking-tight">
+              Digital Experiences That{' '}
+              <span className="font-serif-display italic font-normal text-[#C6A46A] block sm:inline">
+                Move Businesses Forward.
+              </span>
             </h1>
 
-            <p className="text-lg text-slate-400 mb-6 max-w-lg leading-relaxed">
-              We create stunning, fast, mobile-friendly websites that help businesses showcase their products, attract customers and grow online.
+            {/* Supporting Text */}
+            <p className="text-lg sm:text-xl text-[#5A564F] dark:text-[#A8A49B] leading-relaxed font-light max-w-2xl">
+              We design and develop premium digital experiences, business websites and custom web solutions that help brands build trust and grow online.
             </p>
 
-            {/* Animated industry switcher */}
-            <div className="flex items-center gap-3 mb-10">
-              <span className="text-slate-500 text-sm">Built for:</span>
-              <div className="px-3 py-1.5 rounded-lg bg-indigo-500/20 border border-indigo-500/30 text-indigo-300 text-sm font-semibold min-w-[140px] transition-all duration-500">
-                {styles[currentStyle]}
-              </div>
-            </div>
-
-            {/* CTAs */}
-            <div className="flex flex-col sm:flex-row gap-4">
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-2">
               <a
-                href={getWhatsAppUrl(WA_MESSAGES.getMyWebsite)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold rounded-2xl shadow-2xl shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all duration-200 hover:-translate-y-1 text-lg"
+                href="#demos"
+                className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-[#C6A46A] hover:bg-[#B39054] text-[#10110F] font-bold text-xs uppercase tracking-wider rounded-full shadow-lg shadow-[#C6A46A]/20 transition-all duration-200 hover:-translate-y-0.5"
               >
-                Build My Website
-                <ArrowRight className="w-5 h-5" />
+                <span>Explore Our Work</span>
+                <ArrowRight className="w-4 h-4" />
               </a>
-              <Link
-                to="/industries"
-                className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold rounded-2xl transition-all duration-200 hover:-translate-y-1 text-lg"
+              <a
+                href="#inquiry"
+                className="inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-white dark:bg-[#191A17] hover:bg-[#EFECE6] dark:hover:bg-[#252622] text-[#141512] dark:text-[#F5F0E7] border border-black/10 dark:border-white/10 font-bold text-xs uppercase tracking-wider rounded-full transition-all duration-200 hover:-translate-y-0.5 shadow-sm"
               >
-                Explore Live Demo
-              </Link>
+                <span>Let's Talk</span>
+                <ArrowUpRight className="w-4 h-4 text-[#C6A46A]" />
+              </a>
             </div>
 
-            {/* Trust indicators */}
-            <div className="mt-10 flex flex-wrap items-center gap-6 text-slate-500 text-sm">
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-green-400" />
-                <span>18+ Industry Types</span>
+            {/* Studio Engineering Highlights */}
+            <div className="grid grid-cols-3 gap-6 pt-8 border-t border-black/5 dark:border-white/10 max-w-xl">
+              <div>
+                <span className="text-2xl sm:text-3xl font-black font-mono text-[#141512] dark:text-[#F5F0E7] block">
+                  10+
+                </span>
+                <span className="text-xs text-[#6A665E] dark:text-[#A8A49B] font-medium">
+                  Live Trade Demos
+                </span>
               </div>
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-green-400" />
-                <span>Mobile-First Design</span>
+              <div>
+                <span className="text-2xl sm:text-3xl font-black font-mono text-[#141512] dark:text-[#F5F0E7] block">
+                  7 Days
+                </span>
+                <span className="text-xs text-[#6A665E] dark:text-[#A8A49B] font-medium">
+                  Delivery Roadmap
+                </span>
               </div>
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-green-400" />
-                <span>WhatsApp Integration</span>
+              <div>
+                <span className="text-2xl sm:text-3xl font-black font-mono text-[#141512] dark:text-[#F5F0E7] block">
+                  100%
+                </span>
+                <span className="text-xs text-[#6A665E] dark:text-[#A8A49B] font-medium">
+                  Client Ownership
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Right: Website mockup showcase */}
-          <div className="relative hidden lg:block">
-            {/* Desktop browser mockup */}
-            <div className="relative z-10 bg-slate-800 rounded-2xl shadow-2xl shadow-slate-900/80 border border-slate-700 overflow-hidden">
-              {/* Browser chrome */}
-              <div className="flex items-center gap-1.5 px-4 py-3 bg-slate-900 border-b border-slate-700">
-                <div className="w-3 h-3 rounded-full bg-red-500/80" />
-                <div className="w-3 h-3 rounded-full bg-yellow-500/80" />
-                <div className="w-3 h-3 rounded-full bg-green-500/80" />
-                <div className="flex-1 mx-4 h-6 rounded bg-slate-700 flex items-center px-3">
-                  <span className="text-slate-400 text-xs">pixoradigital.in/your-business</span>
-                </div>
-              </div>
-              {/* Mock website content */}
-              <div className="bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 p-6 h-64">
-                <div className="h-4 w-1/3 bg-white/20 rounded mb-4" />
-                <div className="h-8 w-2/3 bg-white/30 rounded mb-3" />
-                <div className="h-3 w-3/4 bg-white/15 rounded mb-2" />
-                <div className="h-3 w-1/2 bg-white/15 rounded mb-6" />
-                <div className="flex gap-3">
-                  <div className="h-9 w-28 bg-indigo-500/60 rounded-xl" />
-                  <div className="h-9 w-28 bg-white/10 rounded-xl border border-white/20" />
-                </div>
-              </div>
-            </div>
-
-            {/* Mobile mockup */}
-            <div className="absolute -right-4 -bottom-8 z-20 w-36 bg-slate-800 rounded-2xl shadow-2xl shadow-slate-900/80 border border-slate-700 overflow-hidden">
-              <div className="flex items-center justify-center py-2 bg-slate-900 border-b border-slate-700">
-                <div className="w-10 h-1.5 bg-slate-700 rounded-full" />
-              </div>
-              <div className="bg-gradient-to-b from-purple-900 to-slate-900 p-3 h-48">
-                <div className="h-3 w-2/3 bg-white/20 rounded mb-3" />
-                <div className="h-5 w-full bg-white/25 rounded mb-2" />
-                <div className="h-2 w-full bg-white/10 rounded mb-1" />
-                <div className="h-2 w-3/4 bg-white/10 rounded mb-4" />
-                <div className="h-7 w-full bg-indigo-500/60 rounded-lg" />
-              </div>
-            </div>
-
-            {/* Floating badges */}
-            <div className="absolute -left-8 top-1/4 bg-white dark:bg-slate-800 rounded-xl shadow-xl px-3 py-2 border border-slate-200 dark:border-slate-700 flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
-                <Check className="w-3.5 h-3.5 text-green-600" />
-              </div>
-              <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">Mobile Ready</span>
-            </div>
-            <div className="absolute -left-4 bottom-1/3 bg-white dark:bg-slate-800 rounded-xl shadow-xl px-3 py-2 border border-slate-200 dark:border-slate-700 flex items-center gap-2">
-              <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-              <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">Premium Design</span>
+          {/* Right Column: 3D WebGL Kinetic Sculpture */}
+          <div className="lg:col-span-5 relative flex items-center justify-center">
+            <div className="w-full relative rounded-3xl bg-white/40 dark:bg-[#161714]/80 border border-black/5 dark:border-white/10 p-2 backdrop-blur-xl shadow-2xl overflow-hidden">
+              <Suspense fallback={<ThreeFallback />}>
+                <ThreeHeroCanvas />
+              </Suspense>
             </div>
           </div>
         </div>
 
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-slate-600">
-          <span className="text-xs font-medium">Scroll to explore</span>
-          <ChevronDown className="w-5 h-5 animate-bounce" />
+        {/* Scroll Indicator */}
+        <div className="mt-16 flex justify-center">
+          <a
+            href="#studio-intro"
+            className="flex flex-col items-center gap-2 text-xs font-mono text-[#8F8B82] dark:text-[#A8A49B] hover:text-[#C6A46A] transition-colors"
+          >
+            <span>DISCOVER THE STUDIO</span>
+            <ChevronDown className="w-4 h-4 animate-bounce" />
+          </a>
         </div>
       </div>
     </section>
   )
 }
 
-// ─── Industry Cards Section ──────────────────────────────────────────────────
+// ─── 2. STUDIO INTRODUCTION ──────────────────────────────────────────────────
 
-function IndustriesSection() {
-  const featured = INDUSTRIES.slice(0, 6)
-
+function StudioIntroSection() {
   return (
-    <section className="section-padding bg-slate-50 dark:bg-slate-900">
+    <section id="studio-intro" className="py-24 border-b border-black/5 dark:border-white/10 relative bg-[#F7F5EF] dark:bg-[#141512]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-sm font-semibold mb-4">
-            <Globe className="w-4 h-4" />
-            Industries We Serve
+        <div className="max-w-3xl mb-16">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#C6A46A]/15 border border-[#C6A46A]/30 text-xs font-semibold text-[#8E6D3E] dark:text-[#C6A46A] mb-6">
+            <Sparkles className="w-3.5 h-3.5" />
+            Studio Philosophy & Craft
           </div>
-          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-4">
-            One Team. Websites for{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-              Every Industry.
-            </span>
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.1] mb-6 text-[#141512] dark:text-[#F5F0E7]">
+            Not generic templates. <br />
+            <span className="text-[#C6A46A]">Digital platforms built for real business impact.</span>
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-lg max-w-2xl mx-auto">
-            From salons to showrooms, gyms to galleries — we build custom websites tailored to your exact business type and brand.
+          <p className="text-lg text-[#5A564F] dark:text-[#A8A49B] leading-relaxed font-light">
+            Most business websites in Hyderabad are built like static brochures: slow, bloated, and disconnected from customer decision-making. At PIXORA DIGITAL, we combine editorial design with high-performance software engineering to create digital platforms that convert visitors into paying clients.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {featured.map((industry) => (
-            <Link
-              key={industry.id}
-              to={industry.previewUrl}
-              className="group relative bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden hover:shadow-xl hover:shadow-slate-900/10 transition-all duration-300 hover:-translate-y-1"
-            >
-              <div className="relative h-44 overflow-hidden">
-                <img
-                  src={industry.image}
-                  alt={industry.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  loading="lazy"
-                />
-                <div className={`absolute inset-0 bg-gradient-to-t ${industry.color} opacity-50 group-hover:opacity-60 transition-opacity`} />
-                <div className="absolute top-4 left-4 text-3xl">{industry.icon}</div>
-              </div>
-              <div className="p-5">
-                <h3 className="font-bold text-slate-900 dark:text-white mb-1 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                  {industry.title}
-                </h3>
-                <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-4">
-                  {industry.description}
-                </p>
-                <div className="flex items-center text-indigo-600 dark:text-indigo-400 text-sm font-semibold">
-                  View Demo
-                  <ArrowRight className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+        {/* Three Pillars */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="p-8 rounded-3xl bg-white dark:bg-[#191A17] border border-black/5 dark:border-white/10 hover:border-[#C6A46A]/40 transition-all hover:shadow-xl group">
+            <div className="w-12 h-12 rounded-2xl bg-[#C6A46A]/15 flex items-center justify-center text-[#C6A46A] mb-6 group-hover:scale-105 transition-transform">
+              <Palette className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl font-bold mb-3 text-[#141512] dark:text-[#F5F0E7]">01. Bespoke Visual Identity</h3>
+            <p className="text-sm text-[#6A665E] dark:text-[#A8A49B] leading-relaxed">
+              We never use cookie-cutter templates. Every typography pairing, color harmony, and layout rhythm is handcrafted to reflect your brand's unique character.
+            </p>
+          </div>
 
-        <div className="text-center">
-          <Link
-            to="/industries"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all duration-200 hover:-translate-y-0.5"
-          >
-            View All 18 Industries
-            <ArrowRight className="w-5 h-5" />
-          </Link>
+          <div className="p-8 rounded-3xl bg-white dark:bg-[#191A17] border border-black/5 dark:border-white/10 hover:border-[#C6A46A]/40 transition-all hover:shadow-xl group">
+            <div className="w-12 h-12 rounded-2xl bg-[#C6A46A]/15 flex items-center justify-center text-[#C6A46A] mb-6 group-hover:scale-105 transition-transform">
+              <Code2 className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl font-bold mb-3 text-[#141512] dark:text-[#F5F0E7]">02. High-Performance Engineering</h3>
+            <p className="text-sm text-[#6A665E] dark:text-[#A8A49B] leading-relaxed">
+              Built with React 19, TypeScript, and modern bundlers. Zero plugin bloat. Lightning-fast sub-second loading ensures zero customer abandonment.
+            </p>
+          </div>
+
+          <div className="p-8 rounded-3xl bg-white dark:bg-[#191A17] border border-black/5 dark:border-white/10 hover:border-[#C6A46A]/40 transition-all hover:shadow-xl group">
+            <div className="w-12 h-12 rounded-2xl bg-[#C6A46A]/15 flex items-center justify-center text-[#C6A46A] mb-6 group-hover:scale-105 transition-transform">
+              <MessageSquare className="w-6 h-6" />
+            </div>
+            <h3 className="text-xl font-bold mb-3 text-[#141512] dark:text-[#F5F0E7]">03. Frictionless Conversion</h3>
+            <p className="text-sm text-[#6A665E] dark:text-[#A8A49B] leading-relaxed">
+              Customers don't want 8-field forms. We embed direct WhatsApp triggers, instant click-to-call, and interactive menu order flows that turn interest into bookings.
+            </p>
+          </div>
         </div>
       </div>
     </section>
   )
 }
 
-// ─── Customize Section ───────────────────────────────────────────────────────
+// ─── 3. FEATURED INDUSTRY DEMOS (Portfolio-Style Gallery) ─────────────────────
 
-function CustomizeSection() {
-  const [form, setForm] = useState({
-    businessName: '',
-    category: '',
-    services: '',
-    city: '',
+function FeaturedDemosSection() {
+  return (
+    <section id="demos" className="py-24 border-b border-black/5 dark:border-white/10 bg-[#FBF9F5] dark:bg-[#10110F]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
+          <div className="max-w-2xl">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#C6A46A]/15 border border-[#C6A46A]/30 text-xs font-semibold text-[#8E6D3E] dark:text-[#C6A46A] mb-4">
+              <Sparkles className="w-3.5 h-3.5" />
+              10 Fully Implemented Trade Demos
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[#141512] dark:text-[#F5F0E7]">
+              Explore realistic business websites in action.
+            </h2>
+            <p className="text-base sm:text-lg text-[#5A564F] dark:text-[#A8A49B] mt-4 font-light">
+              Each demo website below has been custom designed with dedicated trade features, interactive booking forms, and realistic Hyderabad business copy.
+            </p>
+          </div>
+
+          <Link
+            to="/experiences"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white dark:bg-[#191A17] border border-black/10 dark:border-white/10 text-xs font-bold text-[#141512] dark:text-[#F5F0E7] hover:border-[#C6A46A] transition-colors"
+          >
+            <span>Open Device Lab</span>
+            <ArrowRight className="w-4 h-4 text-[#C6A46A]" />
+          </Link>
+        </div>
+
+        {/* Portfolio Gallery Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {FEATURED_DEMOS.map((demo, index) => (
+            <div
+              key={demo.id}
+              className="group flex flex-col bg-white dark:bg-[#191A17] rounded-3xl border border-black/5 dark:border-white/10 overflow-hidden hover:border-[#C6A46A]/50 transition-all duration-300 hover:shadow-2xl"
+            >
+              {/* Image Preview Container */}
+              <div className="relative h-64 sm:h-72 overflow-hidden bg-[#10110F]">
+                <img
+                  src={demo.image}
+                  alt={demo.title}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 brightness-95"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#10110F] via-[#10110F]/30 to-transparent" />
+
+                {/* Floating Tags */}
+                <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+                  <span className="px-3 py-1 rounded-full text-[11px] font-mono font-bold uppercase tracking-wider bg-white/95 dark:bg-[#10110F]/95 text-[#141512] dark:text-[#F5F0E7] backdrop-blur-md border border-white/20">
+                    {demo.category}
+                  </span>
+                  <span className="px-3 py-1 rounded-full text-[11px] font-mono font-bold text-[#10110F] bg-[#C6A46A] shadow-sm">
+                    DEMO 0{index + 1}
+                  </span>
+                </div>
+
+                {/* Bottom Overlay Title */}
+                <div className="absolute bottom-4 left-5 right-5">
+                  <span className="text-[11px] font-mono tracking-widest text-[#C6A46A] uppercase block">
+                    {demo.location}
+                  </span>
+                  <h3 className="text-xl sm:text-2xl font-black text-white leading-tight">
+                    {demo.title}
+                  </h3>
+                </div>
+              </div>
+
+              {/* Card Body */}
+              <div className="p-6 sm:p-8 flex-1 flex flex-col justify-between space-y-6">
+                <div>
+                  <div className="inline-block px-3 py-1 rounded-lg bg-[#F7F5EF] dark:bg-[#121310] text-[#141512] dark:text-[#F5F0E7] text-xs font-semibold mb-3 border border-black/5 dark:border-white/10">
+                    {demo.trade}
+                  </div>
+                  <p className="text-sm text-[#5A564F] dark:text-[#A8A49B] leading-relaxed">
+                    {demo.description}
+                  </p>
+                </div>
+
+                {/* Trade Highlights */}
+                <div className="space-y-2 pt-2 border-t border-black/5 dark:border-white/10">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#8F8B82] block">
+                    Tailored Features Included:
+                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {demo.highlights.map((item) => (
+                      <div key={item} className="flex items-center gap-2 text-xs text-[#141512] dark:text-[#DDD5C7]">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#C6A46A] flex-shrink-0" />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="pt-4 border-t border-black/5 dark:border-white/10 flex items-center justify-between">
+                  <Link
+                    to={demo.route}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#C6A46A] hover:bg-[#B39054] text-[#10110F] text-xs font-bold transition-all shadow-sm"
+                  >
+                    <span>View Live Demo</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+
+                  <a
+                    href={getWhatsAppUrl(`Hello PIXORA DIGITAL! I saw the ${demo.title} demo and would like to build a custom website for my business in Hyderabad.`)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-semibold text-[#5A564F] dark:text-[#A8A49B] hover:text-[#C6A46A] transition-colors inline-flex items-center gap-1.5"
+                  >
+                    <MessageSquare className="w-3.5 h-3.5 text-emerald-500" />
+                    <span>Inquire</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── 4. INTERACTIVE MULTI-DEVICE EXPERIENCE LAB CALLOUT ───────────────────────
+
+function InteractiveDeviceLabSection() {
+  const [activeDemo, setActiveDemo] = useState<'salon' | 'restaurant' | 'clothing' | 'dental' | 'gym' | 'real-estate'>('salon')
+  const [deviceMode, setDeviceMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop')
+
+  const demosMeta = {
+    salon: {
+      title: 'Maison de Beauté',
+      trade: 'Salon & Spa',
+      route: '/preview/salon',
+      tag: 'Bespoke Booking Flow',
+    },
+    restaurant: {
+      title: 'Saffron & Stone',
+      trade: 'Fine Dining',
+      route: '/preview/restaurant',
+      tag: 'Degustation & Table Reservation',
+    },
+    clothing: {
+      title: 'Atelier Nouveau',
+      trade: 'Fashion Boutique',
+      route: '/preview/clothing',
+      tag: 'Lookbook & Tailoring Concierge',
+    },
+    dental: {
+      title: 'Aura Dental Institute',
+      trade: 'Clinical Dental',
+      route: '/preview/dental',
+      tag: 'MDS Roster & Zero-Wait Consult',
+    },
+    gym: {
+      title: 'Kinetic Force',
+      trade: 'Athletic Gym',
+      route: '/preview/gym',
+      tag: 'Equipment Matrix & 1-Day Pass',
+    },
+    'real-estate': {
+      title: 'The Elevation Group',
+      trade: 'Luxury Real Estate',
+      route: '/preview/real-estate',
+      tag: 'RERA Compliance & Chauffeured Visit',
+    },
+  }
+
+  const current = demosMeta[activeDemo]
+
+  return (
+    <section className="py-24 border-b border-black/5 dark:border-white/10 bg-[#F7F5EF] dark:bg-[#141512]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#C6A46A]/15 border border-[#C6A46A]/30 text-xs font-semibold text-[#8E6D3E] dark:text-[#C6A46A] mb-4">
+              <Monitor className="w-3.5 h-3.5" />
+              Viewport Testing Workstation
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[#141512] dark:text-[#F5F0E7]">
+              Multi-Device Experience Lab.
+            </h2>
+          </div>
+          <Link
+            to="/experiences"
+            className="inline-flex items-center gap-2 text-xs font-bold text-[#8E6D3E] dark:text-[#C6A46A] hover:underline"
+          >
+            <span>Open Dedicated Testing Lab</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+
+        {/* Workstation Controls Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-2xl bg-white dark:bg-[#191A17] border border-black/5 dark:border-white/10 mb-6 shadow-sm">
+          {/* Trade Switcher Buttons */}
+          <div className="flex flex-wrap gap-1.5">
+            {(['salon', 'restaurant', 'clothing', 'dental', 'gym', 'real-estate'] as const).map((key) => {
+              const item = demosMeta[key]
+              const isSelected = activeDemo === key
+              return (
+                <button
+                  key={key}
+                  onClick={() => setActiveDemo(key)}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                    isSelected
+                      ? 'bg-[#C6A46A] text-[#10110F] shadow-xs'
+                      : 'bg-[#F7F5EF] dark:bg-[#121310] text-[#5A564F] dark:text-[#A8A49B] hover:text-[#141512] dark:hover:text-[#F5F0E7]'
+                  }`}
+                >
+                  {item.trade}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Viewport Mode Switcher */}
+          <div className="flex items-center gap-1 bg-[#F7F5EF] dark:bg-[#121310] p-1 rounded-xl">
+            <button
+              onClick={() => setDeviceMode('desktop')}
+              className={`p-1.5 rounded-lg transition-colors ${
+                deviceMode === 'desktop'
+                  ? 'bg-white dark:bg-[#191A17] text-[#C6A46A] shadow-xs'
+                  : 'text-[#8F8B82] hover:text-[#141512] dark:hover:text-[#F5F0E7]'
+              }`}
+              title="Desktop View"
+            >
+              <Monitor className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setDeviceMode('tablet')}
+              className={`p-1.5 rounded-lg transition-colors ${
+                deviceMode === 'tablet'
+                  ? 'bg-white dark:bg-[#191A17] text-[#C6A46A] shadow-xs'
+                  : 'text-[#8F8B82] hover:text-[#141512] dark:hover:text-[#F5F0E7]'
+              }`}
+              title="Tablet 768px"
+            >
+              <Tablet className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setDeviceMode('mobile')}
+              className={`p-1.5 rounded-lg transition-colors ${
+                deviceMode === 'mobile'
+                  ? 'bg-white dark:bg-[#191A17] text-[#C6A46A] shadow-xs'
+                  : 'text-[#8F8B82] hover:text-[#141512] dark:hover:text-[#F5F0E7]'
+              }`}
+              title="Mobile 390px"
+            >
+              <Smartphone className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Direct Route Action */}
+          <Link
+            to={current.route}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#C6A46A] text-[#10110F] text-xs font-bold hover:bg-[#B39054] transition-colors"
+          >
+            <Maximize2 className="w-3.5 h-3.5" />
+            <span>Launch Fullscreen</span>
+          </Link>
+        </div>
+
+        {/* Viewport Frame */}
+        <div className="flex justify-center items-center py-4">
+          <div
+            className={`w-full transition-all duration-300 ${
+              deviceMode === 'mobile'
+                ? 'max-w-[390px] rounded-[44px] p-2 bg-[#121310] border-4 border-black/20 dark:border-white/10 shadow-2xl'
+                : deviceMode === 'tablet'
+                ? 'max-w-[768px] rounded-[32px] p-2 bg-[#121310] border-4 border-black/20 dark:border-white/10 shadow-2xl'
+                : 'max-w-full rounded-2xl bg-[#121310] border border-black/10 dark:border-white/10 shadow-2xl overflow-hidden'
+            }`}
+          >
+            {/* Top Bar */}
+            <div className="h-8 bg-[#191A17] px-4 flex items-center justify-between border-b border-white/5">
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-rose-500/80 inline-block" />
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block" />
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block" />
+              </div>
+              <span className="text-[11px] font-mono text-[#A8A49B]">
+                demo.pixora.digital{current.route}
+              </span>
+              <span className="text-[10px] font-mono text-[#C6A46A] uppercase">{current.tag}</span>
+            </div>
+
+            {/* Iframe View */}
+            <div
+              className={`bg-[#10110F] overflow-hidden ${
+                deviceMode === 'mobile'
+                  ? 'h-[640px] rounded-[36px]'
+                  : deviceMode === 'tablet'
+                  ? 'h-[680px] rounded-[24px]'
+                  : 'h-[620px]'
+              }`}
+            >
+              <iframe
+                src={current.route}
+                title={`${current.title} Preview`}
+                className="w-full h-full border-0"
+                loading="lazy"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── 5. STUDIO SERVICES & CAPABILITIES ───────────────────────────────────────
+
+function ServicesSection() {
+  return (
+    <section className="py-24 border-b border-black/5 dark:border-white/10 bg-[#FBF9F5] dark:bg-[#10110F]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mb-16">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#C6A46A]/15 border border-[#C6A46A]/30 text-xs font-semibold text-[#8E6D3E] dark:text-[#C6A46A] mb-6">
+            <Zap className="w-3.5 h-3.5" />
+            Studio Services & Scope
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.08] mb-6 text-[#141512] dark:text-[#F5F0E7]">
+            Full-spectrum digital web engineering.
+          </h2>
+          <p className="text-lg text-[#5A564F] dark:text-[#A8A49B] leading-relaxed font-light">
+            From modern responsive storefronts to direct WhatsApp ordering carts and high-speed cloud infrastructure, we build digital assets that deliver measurable results.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {SERVICES.slice(0, 6).map((service, index) => (
+            <div
+              key={service.id}
+              className="p-8 rounded-3xl bg-white dark:bg-[#191A17] border border-black/5 dark:border-white/10 hover:border-[#C6A46A]/40 transition-all hover:shadow-xl flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-xs font-mono font-bold text-[#C6A46A]">
+                    0{index + 1}
+                  </span>
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-wider bg-[#F7F5EF] dark:bg-[#121310] text-[#8E6D3E] dark:text-[#C6A46A] border border-black/5 dark:border-white/10">
+                    {service.tier}
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-[#141512] dark:text-[#F5F0E7] mb-2">
+                  {service.title}
+                </h3>
+                <p className="text-xs text-[#8E6D3E] dark:text-[#C6A46A] font-semibold mb-3">
+                  {service.subtitle}
+                </p>
+                <p className="text-sm text-[#5A564F] dark:text-[#A8A49B] leading-relaxed mb-6 font-light">
+                  {service.description}
+                </p>
+              </div>
+              <div className="pt-4 border-t border-black/5 dark:border-white/10 text-xs text-[#6A665E] dark:text-[#A8A49B]">
+                <strong className="text-[#141512] dark:text-[#F5F0E7]">Impact:</strong> {service.benefit}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── 6. TRANSPARENT PRICING & SEPARATE BILLING ───────────────────────────────
+
+function PricingSection() {
+  return (
+    <section className="py-24 border-b border-black/5 dark:border-white/10 bg-[#F7F5EF] dark:bg-[#141512]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center max-w-2xl mx-auto mb-16">
+          <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#8E6D3E] dark:text-[#C6A46A] mb-3 block">
+            Transparent Investment
+          </span>
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight mb-4 text-[#141512] dark:text-[#F5F0E7]">
+            Clear, upfront pricing.
+          </h2>
+          <p className="text-base text-[#5A564F] dark:text-[#A8A49B] font-light">
+            No hidden costs. Domain, hosting renewals, and third-party APIs are billed at actuals directly to client-owned accounts.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+          {PRICING_PLANS.map((plan) => (
+            <div
+              key={plan.name}
+              className={`rounded-3xl p-8 flex flex-col justify-between transition-all ${
+                plan.highlight
+                  ? 'bg-white dark:bg-[#191A17] text-[#141512] dark:text-[#F5F0E7] border-2 border-[#C6A46A] shadow-2xl relative'
+                  : 'bg-white dark:bg-[#191A17] text-[#141512] dark:text-[#F5F0E7] border border-black/5 dark:border-white/10'
+              }`}
+            >
+              {plan.badge && (
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-[#C6A46A] text-[#10110F] text-xs font-bold uppercase tracking-wider shadow-md">
+                  {plan.badge}
+                </div>
+              )}
+
+              <div>
+                <h3 className="text-2xl font-bold mb-2 text-[#141512] dark:text-[#F5F0E7]">{plan.name}</h3>
+                <p className="text-xs text-[#5A564F] dark:text-[#A8A49B] mb-6">
+                  {plan.tagline}
+                </p>
+
+                <div className="flex items-baseline gap-2 mb-8 pb-6 border-b border-black/5 dark:border-white/10">
+                  <span className="text-4xl sm:text-5xl font-black font-mono tracking-tight text-[#141512] dark:text-[#F5F0E7]">
+                    {plan.price}
+                  </span>
+                  <span className="text-xs text-[#8F8B82]">{plan.suffix}</span>
+                </div>
+
+                <div className="space-y-3 mb-8">
+                  {plan.features.map((feat) => (
+                    <div key={feat} className="flex items-start gap-2.5 text-xs text-[#444037] dark:text-[#DDD5C7]">
+                      <CheckCircle2 className="w-4 h-4 text-[#C6A46A] flex-shrink-0 mt-0.5" />
+                      <span>{feat}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <a
+                href={getWhatsAppUrl(`Hello PIXORA DIGITAL! I'm interested in the ${plan.name} Package (${plan.price}). Could you provide a formal project scope & quote?`)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`w-full py-4 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-sm ${
+                  plan.highlight
+                    ? 'bg-[#C6A46A] hover:bg-[#B39054] text-[#10110F]'
+                    : 'bg-[#F7F5EF] dark:bg-[#121310] text-[#141512] dark:text-[#F5F0E7] hover:bg-[#C6A46A] hover:text-[#10110F]'
+                }`}
+              >
+                <span>Select {plan.name} Plan</span>
+                <ArrowRight className="w-4 h-4" />
+              </a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── 7. WHY CHOOSE PIXORA DIGITAL ─────────────────────────────────────────────
+
+function WhyChooseUsSection() {
+  const reasons = [
+    {
+      title: '100% Client Ownership Policy',
+      desc: 'Your domain, hosting, and source code are registered directly in your name. We provide delegated co-setup with zero proprietary lock-in.',
+      icon: ShieldCheck,
+    },
+    {
+      title: 'Predictable 7-Day Sprint',
+      desc: 'Our structured milestone calendar means you launch in 7 business days from asset sign-off, not weeks or months.',
+      icon: Clock,
+    },
+    {
+      title: 'Bespoke Non-Template Craft',
+      desc: 'We never deploy cookie-cutter templates. Every trade layout is tailored with custom typography, spacing, and conversion funnels.',
+      icon: Palette,
+    },
+    {
+      title: 'Direct Hyderabad Engineering',
+      desc: 'Speak directly with the software engineers writing your code. No middlemen, no junior subcontracting.',
+      icon: Code2,
+    },
+  ]
+
+  return (
+    <section className="py-24 border-b border-black/5 dark:border-white/10 bg-[#FBF9F5] dark:bg-[#10110F]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mb-16">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#C6A46A]/15 border border-[#C6A46A]/30 text-xs font-semibold text-[#8E6D3E] dark:text-[#C6A46A] mb-4">
+            <Check className="w-3.5 h-3.5" />
+            The Agency Difference
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-[#141512] dark:text-[#F5F0E7]">
+            Why Hyderabad businesses partner with PIXORA DIGITAL.
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {reasons.map((r, i) => {
+            const Icon = r.icon
+            return (
+              <div
+                key={r.title}
+                className="p-8 rounded-3xl bg-white dark:bg-[#191A17] border border-black/5 dark:border-white/10 hover:border-[#C6A46A]/40 transition-all hover:shadow-xl space-y-4"
+              >
+                <div className="w-12 h-12 rounded-2xl bg-[#C6A46A]/15 flex items-center justify-center text-[#C6A46A]">
+                  <Icon className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-bold text-[#141512] dark:text-[#F5F0E7]">
+                  {r.title}
+                </h3>
+                <p className="text-xs text-[#5A564F] dark:text-[#A8A49B] leading-relaxed font-light">
+                  {r.desc}
+                </p>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+// ─── 8. CONTACT & INQUIRY (WITH TWO CONTACT NUMBERS) ──────────────────────────
+
+function ContactSection() {
+  const [formData, setFormData] = useState({
+    businessCategory: 'Luxury Salon & Spa',
+    name: '',
     phone: '',
+    budget: 'Growth (₹9,000 onwards)',
+    requirements: '',
+    contactLine: 'line1', // 'line1' or 'line2'
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submitted, setSubmitted] = useState(false)
 
-  const categories = [
-    'Salon & Beauty', 'Restaurant & Cafe', 'Clothing Store', 'Furniture Store',
-    'Dental Clinic', 'Gym & Fitness', 'Real Estate', 'Automobile',
-    'Photography', 'Education & Coaching', 'Electronics', 'Travel & Hotels',
-    'Bakery', 'Pet Clinic', 'Home Services', 'Other',
-  ]
-
   const validate = () => {
-    const newErrors: Record<string, string> = {}
-    if (!form.businessName.trim()) newErrors.businessName = 'Business name is required'
-    if (!form.category) newErrors.category = 'Please select a category'
-    if (!form.services.trim()) newErrors.services = 'Please describe your services'
-    if (!form.city.trim()) newErrors.city = 'City is required'
-    if (!form.phone.trim()) newErrors.phone = 'Phone number is required'
-    else if (!/^\d{10}$/.test(form.phone.replace(/\s/g, ''))) newErrors.phone = 'Enter a valid 10-digit number'
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
+    const e: Record<string, string> = {}
+    if (!formData.name.trim()) e.name = 'Please provide your full name'
+    if (!formData.phone.trim() || formData.phone.length < 10) e.phone = 'Valid 10-digit phone number is required'
+    if (!formData.requirements.trim()) e.requirements = 'Please tell us what you need for your website'
+    setErrors(e)
+    return Object.keys(e).length === 0
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate()) return
-    const message = `Hello PIXORA DIGITAL! I'm interested in getting a website built for my business.\n\n*Business Details:*\n• Business Name: ${form.businessName}\n• Category: ${form.category}\n• Services/Products: ${form.services}\n• City: ${form.city}\n• Phone: ${form.phone}\n\nPlease share the details and pricing for my custom website.`
-    const url = getWhatsAppUrl(message)
-    window.open(url, '_blank')
+
+    const targetNumber = formData.contactLine === 'line2' ? WHATSAPP_NUMBER_2 : WHATSAPP_NUMBER_1
+
+    const message = `Hello PIXORA DIGITAL!
+
+*New Website Project Inquiry:*
+• Trade/Category: ${formData.businessCategory}
+• Client Name: ${formData.name}
+• Client Phone: ${formData.phone}
+• Preferred Budget: ${formData.budget}
+
+*Project Requirements:*
+${formData.requirements}
+
+Please share a proposal and next steps!`
+
+    window.open(getWhatsAppUrl(message, targetNumber), '_blank')
     setSubmitted(true)
   }
 
-  if (submitted) {
-    return (
-      <section className="section-padding bg-white dark:bg-slate-950">
-        <div className="max-w-2xl mx-auto px-4 text-center">
-          <div className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-6">
-            <Check className="w-10 h-10 text-green-600" />
-          </div>
-          <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-4">WhatsApp Opened!</h2>
-          <p className="text-slate-600 dark:text-slate-400 mb-8">
-            Your enquiry details have been prepared. Please send the message on WhatsApp to connect with our team. We'll get back to you shortly.
-          </p>
-          <button
-            onClick={() => { setSubmitted(false); setForm({ businessName: '', category: '', services: '', city: '', phone: '' }) }}
-            className="px-8 py-3 border-2 border-indigo-600 text-indigo-600 font-bold rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-colors"
-          >
-            Submit Another Enquiry
-          </button>
-        </div>
-      </section>
-    )
-  }
-
   return (
-    <section id="customize" className="section-padding bg-white dark:bg-slate-950">
+    <section id="inquiry" className="py-24 relative bg-[#F7F5EF] dark:bg-[#141512]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          {/* Left */}
-          <div>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 text-sm font-semibold mb-6">
-              ✨ Customize Your Website
+        <div className="grid lg:grid-cols-12 gap-12 items-start">
+          {/* Left Column: Direct Phone & WhatsApp Connections */}
+          <div className="lg:col-span-5 space-y-6">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#C6A46A]/15 border border-[#C6A46A]/30 text-xs font-semibold text-[#8E6D3E] dark:text-[#C6A46A]">
+              <MessageSquare className="w-3.5 h-3.5" />
+              Direct Studio Connections
             </div>
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-6">
-              Imagine Your{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-                Business Here.
-              </span>
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-[1.1] text-[#141512] dark:text-[#F5F0E7]">
+              Let's build something exceptional together.
             </h2>
-            <p className="text-slate-600 dark:text-slate-400 text-lg mb-8 leading-relaxed">
-              Fill in your business details and we'll create a custom website proposal tailored specifically for you. No generic templates — just a website that truly represents your business.
+            <p className="text-[#5A564F] dark:text-[#A8A49B] text-sm sm:text-base leading-relaxed font-light">
+              Connect directly with our Hyderabad engineering team. We are available via direct call or WhatsApp on two dedicated lines.
             </p>
-            <ul className="space-y-3 text-slate-700 dark:text-slate-300">
-              {[
-                'Custom design matching your brand',
-                'Content tailored to your services',
-                'Mobile-first and SEO-ready',
-                'WhatsApp and phone integration',
-                'Fast delivery and easy updates',
-              ].map((item) => (
-                <li key={item} className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0">
-                    <Check className="w-3 h-3 text-indigo-600 dark:text-indigo-400" />
-                  </div>
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </div>
 
-          {/* Right: Form */}
-          <div className="bg-slate-50 dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-700">
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">Request My Custom Website</h3>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Business Name *
-                </label>
-                <input
-                  type="text"
-                  value={form.businessName}
-                  onChange={(e) => setForm({ ...form, businessName: e.target.value })}
-                  placeholder="e.g. Glamour Salon, Spice Garden..."
-                  className={`w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border ${errors.businessName ? 'border-red-400' : 'border-slate-300 dark:border-slate-600'} text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all`}
-                />
-                {errors.businessName && <p className="mt-1 text-xs text-red-500">{errors.businessName}</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Business Category *
-                </label>
-                <select
-                  value={form.category}
-                  onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  className={`w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border ${errors.category ? 'border-red-400' : 'border-slate-300 dark:border-slate-600'} text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all`}
-                >
-                  <option value="">Select your industry...</option>
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-                {errors.category && <p className="mt-1 text-xs text-red-500">{errors.category}</p>}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                  Services / Products *
-                </label>
-                <textarea
-                  value={form.services}
-                  onChange={(e) => setForm({ ...form, services: e.target.value })}
-                  placeholder="Describe what you offer..."
-                  rows={3}
-                  className={`w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border ${errors.services ? 'border-red-400' : 'border-slate-300 dark:border-slate-600'} text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none`}
-                />
-                {errors.services && <p className="mt-1 text-xs text-red-500">{errors.services}</p>}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
+            {/* Contact Card 1 */}
+            <div className="p-6 rounded-3xl bg-white dark:bg-[#191A17] border border-black/5 dark:border-white/10 space-y-4 shadow-sm">
+              <div className="flex items-center justify-between">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                    City *
-                  </label>
-                  <input
-                    type="text"
-                    value={form.city}
-                    onChange={(e) => setForm({ ...form, city: e.target.value })}
-                    placeholder="e.g. Hyderabad"
-                    className={`w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border ${errors.city ? 'border-red-400' : 'border-slate-300 dark:border-slate-600'} text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all`}
-                  />
-                  {errors.city && <p className="mt-1 text-xs text-red-500">{errors.city}</p>}
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#C6A46A] block">
+                    Contact Line 1
+                  </span>
+                  <span className="text-base font-bold text-[#141512] dark:text-[#F5F0E7]">
+                    {PHONE_DISPLAY_1}
+                  </span>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">
-                    Phone Number *
-                  </label>
-                  <input
-                    type="tel"
-                    value={form.phone}
-                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    placeholder="10-digit number"
-                    className={`w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border ${errors.phone ? 'border-red-400' : 'border-slate-300 dark:border-slate-600'} text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all`}
-                  />
-                  {errors.phone && <p className="mt-1 text-xs text-red-500">{errors.phone}</p>}
-                </div>
+                <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                  Online
+                </span>
               </div>
 
-              <button
-                type="submit"
-                className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 hover:shadow-indigo-500/40 transition-all duration-200 hover:-translate-y-0.5 flex items-center justify-center gap-2"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                </svg>
-                Request My Custom Website
-              </button>
-              <p className="text-xs text-slate-500 text-center">
-                This will open WhatsApp with your details pre-filled. No automatic website is generated — our team will review your enquiry and contact you.
-              </p>
-            </form>
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// ─── Features Highlight ──────────────────────────────────────────────────────
-
-function FeaturesHighlight() {
-  const features = [
-    { icon: '📱', title: 'Mobile-First', desc: 'Looks perfect on every screen' },
-    { icon: '⚡', title: 'Fast Loading', desc: 'Optimized for speed' },
-    { icon: '💬', title: 'WhatsApp', desc: 'Direct customer contact' },
-    { icon: '🔍', title: 'SEO Ready', desc: 'Found on Google' },
-    { icon: '🌙', title: 'Dark Mode', desc: 'Modern viewing experience' },
-    { icon: '🗺️', title: 'Google Maps', desc: 'Easy to find you' },
-  ]
-
-  return (
-    <section className="section-padding bg-slate-950">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-black text-white mb-4">
-            Every Website Includes
-          </h2>
-          <p className="text-slate-400 text-lg max-w-xl mx-auto">
-            Professional features built into every website we deliver.
-          </p>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          {features.map((f) => (
-            <div
-              key={f.title}
-              className="bg-slate-900 border border-slate-800 rounded-2xl p-5 text-center hover:border-indigo-500/40 hover:bg-slate-800 transition-all duration-200 group"
-            >
-              <div className="text-3xl mb-3">{f.icon}</div>
-              <p className="text-white font-semibold text-sm mb-1 group-hover:text-indigo-400 transition-colors">{f.title}</p>
-              <p className="text-slate-500 text-xs">{f.desc}</p>
-            </div>
-          ))}
-        </div>
-        <div className="text-center mt-8">
-          <Link
-            to="/features"
-            className="inline-flex items-center gap-2 text-indigo-400 hover:text-indigo-300 font-semibold transition-colors"
-          >
-            See all features <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// ─── Our Work Preview ─────────────────────────────────────────────────────────
-
-function OurWorkPreview() {
-  return (
-    <section className="section-padding bg-white dark:bg-slate-950">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-4">
-            See Our Work
-          </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-lg max-w-xl mx-auto">
-            Real projects we've built for businesses like yours.
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Salon Project Card */}
-          <div className="group bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-300">
-            <div className="relative h-56 bg-gradient-to-br from-purple-600 to-pink-600 overflow-hidden">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-48 bg-white/10 backdrop-blur-sm rounded-xl p-4 text-white">
-                  <div className="h-2 bg-white/30 rounded mb-2 w-3/4" />
-                  <div className="h-4 bg-white/40 rounded mb-2" />
-                  <div className="h-2 bg-white/20 rounded w-2/3" />
-                </div>
-              </div>
-              <div className="absolute top-4 left-4 text-xs font-semibold px-2 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white border border-white/30">
-                Live Demo
-              </div>
-            </div>
-            <div className="p-6">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-semibold px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full">Salon</span>
-                <span className="text-xs text-slate-500">Demo Project</span>
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Salon Website Demo</h3>
-              <p className="text-slate-600 dark:text-slate-400 text-sm mb-4">
-                A complete salon website with services, gallery, team profiles, appointment booking and WhatsApp integration.
-              </p>
-              <div className="flex items-center gap-3">
+              <div className="grid grid-cols-2 gap-3 pt-2">
                 <a
-                  href="https://salon-2-five.vercel.app"
+                  href={`tel:${PHONE_NUMBER_1}`}
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#F7F5EF] dark:bg-[#121310] hover:bg-[#EFECE6] dark:hover:bg-[#252622] text-[#141512] dark:text-[#F5F0E7] text-xs font-bold transition-colors border border-black/5 dark:border-white/10"
+                >
+                  <Phone className="w-3.5 h-3.5 text-[#C6A46A]" />
+                  <span>Call Line 1</span>
+                </a>
+                <a
+                  href={getWhatsAppUrl(WA_MESSAGES.default, WHATSAPP_NUMBER_1)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 text-center py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/25 transition-all"
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#C6A46A] hover:bg-[#B39054] text-[#10110F] text-xs font-bold transition-colors shadow-sm"
                 >
-                  View Live Demo ↗
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  <span>WhatsApp 1</span>
                 </a>
-                <Link
-                  to="/preview/salon"
-                  className="flex-1 text-center py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 text-sm font-semibold rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+              </div>
+            </div>
+
+            {/* Contact Card 2 */}
+            <div className="p-6 rounded-3xl bg-white dark:bg-[#191A17] border border-black/5 dark:border-white/10 space-y-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#C6A46A] block">
+                    Contact Line 2
+                  </span>
+                  <span className="text-base font-bold text-[#141512] dark:text-[#F5F0E7]">
+                    {PHONE_DISPLAY_2}
+                  </span>
+                </div>
+                <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                  Online
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <a
+                  href={`tel:${PHONE_NUMBER_2}`}
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#F7F5EF] dark:bg-[#121310] hover:bg-[#EFECE6] dark:hover:bg-[#252622] text-[#141512] dark:text-[#F5F0E7] text-xs font-bold transition-colors border border-black/5 dark:border-white/10"
                 >
-                  Preview Here
-                </Link>
+                  <Phone className="w-3.5 h-3.5 text-[#C6A46A]" />
+                  <span>Call Line 2</span>
+                </a>
+                <a
+                  href={getWhatsAppUrl(WA_MESSAGES.default, WHATSAPP_NUMBER_2)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#C6A46A] hover:bg-[#B39054] text-[#10110F] text-xs font-bold transition-colors shadow-sm"
+                >
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  <span>WhatsApp 2</span>
+                </a>
               </div>
+            </div>
+
+            <div className="text-xs text-[#6A665E] dark:text-[#A8A49B] flex items-center gap-2 pt-2">
+              <ShieldCheck className="w-4 h-4 text-[#C6A46A]" />
+              <span>Direct engineer response within 1 business hour.</span>
             </div>
           </div>
 
-          {/* General preview card */}
-          <div className="group bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-300">
-            <div className="relative h-56 bg-gradient-to-br from-indigo-600 to-cyan-600 overflow-hidden">
-              <div className="absolute inset-0 flex items-center justify-center gap-3">
-                {INDUSTRIES.slice(0, 3).map((ind) => (
-                  <div key={ind.id} className="w-20 bg-white/10 backdrop-blur-sm rounded-xl p-2 text-center">
-                    <div className="text-2xl mb-1">{ind.icon}</div>
-                    <div className="h-1.5 bg-white/30 rounded w-full" />
+          {/* Right Column: Interactive Inquiry Form */}
+          <div className="lg:col-span-7 bg-white dark:bg-[#191A17] rounded-3xl p-8 border border-black/5 dark:border-white/10 shadow-xl">
+            {submitted ? (
+              <div className="text-center py-12 space-y-4">
+                <div className="w-16 h-16 rounded-full bg-emerald-500/15 flex items-center justify-center text-emerald-500 mx-auto">
+                  <CheckCircle2 className="w-8 h-8" />
+                </div>
+                <h3 className="text-2xl font-bold text-[#141512] dark:text-[#F5F0E7]">
+                  WhatsApp Inquiry Dispatched!
+                </h3>
+                <p className="text-sm text-[#5A564F] dark:text-[#A8A49B] max-w-md mx-auto">
+                  Your formatted project brief has been transferred to WhatsApp. Please tap Send in the chat to connect with our team.
+                </p>
+                <button
+                  onClick={() => setSubmitted(false)}
+                  className="px-6 py-2.5 rounded-full border border-black/10 dark:border-white/10 text-xs font-bold text-[#141512] dark:text-[#F5F0E7] hover:bg-[#F7F5EF] dark:hover:bg-[#121310] transition-colors"
+                >
+                  Send Another Inquiry
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <div className="grid sm:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[#8F8B82] mb-2">
+                      Trade / Business Category *
+                    </label>
+                    <select
+                      value={formData.businessCategory}
+                      onChange={(e) => setFormData({ ...formData, businessCategory: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-[#F7F5EF] dark:bg-[#121310] border border-black/5 dark:border-white/10 text-[#141512] dark:text-[#F5F0E7] text-sm focus:outline-none focus:ring-2 focus:ring-[#C6A46A]"
+                    >
+                      <option>Luxury Salon & Spa</option>
+                      <option>Heritage Restaurant & Dining</option>
+                      <option>Designer Fashion Boutique</option>
+                      <option>Architectural Furniture Showroom</option>
+                      <option>Advanced Dental & Healthcare</option>
+                      <option>High-Performance Athletic Gym</option>
+                      <option>Luxury Real Estate & Villas</option>
+                      <option>Supercar Detailing & PPF Studio</option>
+                      <option>Cinematic Wedding Photography</option>
+                      <option>Premier Coaching & Test Prep</option>
+                      <option>Other Trade (Custom Website)</option>
+                    </select>
                   </div>
-                ))}
-              </div>
-              <div className="absolute top-4 left-4 text-xs font-semibold px-2 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white border border-white/30">
-                18+ Industries
-              </div>
-            </div>
-            <div className="p-6">
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-semibold px-2 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full">Demo</span>
-                <span className="text-xs text-slate-500">Multiple Industries</span>
-              </div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Industry Preview Collection</h3>
-              <p className="text-slate-600 dark:text-slate-400 text-sm mb-4">
-                Explore 10+ live industry previews — restaurants, gyms, clothing stores, dental clinics and more.
-              </p>
-              <Link
-                to="/industries"
-                className="block text-center py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-sm font-semibold rounded-xl hover:shadow-lg hover:shadow-indigo-500/25 transition-all"
-              >
-                Explore All Industries
-              </Link>
-            </div>
+
+                  <div>
+                    <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[#8F8B82] mb-2">
+                      Target Budget Scope *
+                    </label>
+                    <select
+                      value={formData.budget}
+                      onChange={(e) => setFormData({ ...formData, budget: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-[#F7F5EF] dark:bg-[#121310] border border-black/5 dark:border-white/10 text-[#141512] dark:text-[#F5F0E7] text-sm focus:outline-none focus:ring-2 focus:ring-[#C6A46A]"
+                    >
+                      <option>Starter (₹5,000 onwards)</option>
+                      <option>Growth (₹9,000 onwards)</option>
+                      <option>Custom Pro (₹15,000 onwards)</option>
+                      <option>Bespoke Enterprise Scope</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[#8F8B82] mb-2">
+                      Your Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Ramesh Reddy"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className={`w-full px-4 py-3 rounded-xl bg-[#F7F5EF] dark:bg-[#121310] border ${
+                        errors.name ? 'border-red-500' : 'border-black/5 dark:border-white/10'
+                      } text-[#141512] dark:text-[#F5F0E7] text-sm focus:outline-none focus:ring-2 focus:ring-[#C6A46A]`}
+                    />
+                    {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[#8F8B82] mb-2">
+                      Phone Number (WhatsApp) *
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="e.g. +91 98765 43210"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      className={`w-full px-4 py-3 rounded-xl bg-[#F7F5EF] dark:bg-[#121310] border ${
+                        errors.phone ? 'border-red-500' : 'border-black/5 dark:border-white/10'
+                      } text-[#141512] dark:text-[#F5F0E7] text-sm focus:outline-none focus:ring-2 focus:ring-[#C6A46A]`}
+                    />
+                    {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[#8F8B82] mb-2">
+                    Send Inquiry To Contact Line:
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, contactLine: 'line1' })}
+                      className={`py-2.5 px-4 rounded-xl text-xs font-bold border transition-all text-left ${
+                        formData.contactLine === 'line1'
+                          ? 'border-[#C6A46A] bg-[#C6A46A]/10 text-[#141512] dark:text-[#F5F0E7]'
+                          : 'border-black/5 dark:border-white/10 bg-[#F7F5EF] dark:bg-[#121310] text-[#8F8B82]'
+                      }`}
+                    >
+                      <span className="block font-mono text-[10px] text-[#C6A46A]">LINE 1</span>
+                      <span>{PHONE_DISPLAY_1}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, contactLine: 'line2' })}
+                      className={`py-2.5 px-4 rounded-xl text-xs font-bold border transition-all text-left ${
+                        formData.contactLine === 'line2'
+                          ? 'border-[#C6A46A] bg-[#C6A46A]/10 text-[#141512] dark:text-[#F5F0E7]'
+                          : 'border-black/5 dark:border-white/10 bg-[#F7F5EF] dark:bg-[#121310] text-[#8F8B82]'
+                      }`}
+                    >
+                      <span className="block font-mono text-[10px] text-[#C6A46A]">LINE 2</span>
+                      <span>{PHONE_DISPLAY_2}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[#8F8B82] mb-2">
+                    Website Goals & Requirements *
+                  </label>
+                  <textarea
+                    rows={4}
+                    placeholder="Describe your business, essential features (e.g. online booking, WhatsApp catalog, portfolio, location map), and desired launch timeline..."
+                    value={formData.requirements}
+                    onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
+                    className={`w-full px-4 py-3 rounded-xl bg-[#F7F5EF] dark:bg-[#121310] border ${
+                      errors.requirements ? 'border-red-500' : 'border-black/5 dark:border-white/10'
+                    } text-[#141512] dark:text-[#F5F0E7] text-sm focus:outline-none focus:ring-2 focus:ring-[#C6A46A] resize-none`}
+                  />
+                  {errors.requirements && <p className="text-red-500 text-xs mt-1">{errors.requirements}</p>}
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-4 rounded-full bg-[#C6A46A] hover:bg-[#B39054] text-[#10110F] font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-[#C6A46A]/20 transition-all hover:-translate-y-0.5"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>Submit Inquiry & Connect on WhatsApp</span>
+                </button>
+
+                <p className="text-[11px] text-center text-[#8F8B82]">
+                  🔒 Your data is kept strictly confidential. You connect directly with our engineering studio.
+                </p>
+              </form>
+            )}
           </div>
         </div>
-
-        <div className="text-center mt-8">
-          <Link
-            to="/our-work"
-            className="inline-flex items-center gap-2 text-indigo-600 dark:text-indigo-400 hover:underline font-semibold"
-          >
-            View Full Portfolio <ArrowRight className="w-4 h-4" />
-          </Link>
-        </div>
       </div>
     </section>
   )
 }
 
-// ─── Pricing Preview ──────────────────────────────────────────────────────────
-
-function PricingPreview() {
-  return (
-    <section className="section-padding bg-slate-50 dark:bg-slate-900">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white mb-4">
-          Simple, Transparent Pricing
-        </h2>
-        <p className="text-slate-600 dark:text-slate-400 text-lg mb-8">
-          Starting from ₹5,000 — no hidden charges, no surprises.
-        </p>
-        <div className="grid sm:grid-cols-3 gap-6 mb-8">
-          {[
-            { name: 'Starter', price: '₹5,000', desc: 'Perfect for starting out', featured: false },
-            { name: 'Professional', price: '₹9,000', desc: 'For growing businesses', featured: true },
-            { name: 'Premium', price: '₹15,000', desc: 'Complete digital presence', featured: false },
-          ].map((plan) => (
-            <div
-              key={plan.name}
-              className={`p-6 rounded-2xl ${plan.featured ? 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-xl shadow-indigo-500/30' : 'bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700'}`}
-            >
-              <p className={`text-sm font-semibold mb-2 ${plan.featured ? 'text-indigo-200' : 'text-slate-500 dark:text-slate-400'}`}>{plan.name}</p>
-              <p className={`text-3xl font-black mb-1 ${plan.featured ? 'text-white' : 'text-slate-900 dark:text-white'}`}>{plan.price}</p>
-              <p className={`text-xs mb-1 ${plan.featured ? 'text-indigo-200' : 'text-slate-400'}`}>onwards</p>
-              <p className={`text-sm ${plan.featured ? 'text-indigo-100' : 'text-slate-600 dark:text-slate-400'}`}>{plan.desc}</p>
-            </div>
-          ))}
-        </div>
-        <Link
-          to="/pricing"
-          className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold rounded-2xl shadow-lg shadow-indigo-500/25 transition-all duration-200 hover:-translate-y-0.5"
-        >
-          See Full Pricing Details <ArrowRight className="w-5 h-5" />
-        </Link>
-      </div>
-    </section>
-  )
-}
-
-// ─── CTA Section ─────────────────────────────────────────────────────────────
-
-function CTASection() {
-  return (
-    <section className="section-padding bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-800 relative overflow-hidden">
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-white/10 rounded-full" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-white/10 rounded-full" />
-      </div>
-      <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white mb-6">
-          Ready to Build Your Website?
-        </h2>
-        <p className="text-xl text-indigo-200 mb-10 max-w-2xl mx-auto">
-          One Business. One Powerful Digital Experience. Let's create something amazing for your business today.
-        </p>
-        <div className="flex flex-col sm:flex-row justify-center gap-4">
-          <a
-            href={getWhatsAppUrl(WA_MESSAGES.freeConsultation)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-indigo-700 font-bold rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 text-lg"
-          >
-            Request a Free Consultation
-          </a>
-          <a
-            href={`tel:${PHONE_NUMBER}`}
-            className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/10 border-2 border-white/30 text-white font-bold rounded-2xl hover:bg-white/20 hover:-translate-y-1 transition-all duration-200 text-lg"
-          >
-            Call Us: {PHONE_DISPLAY}
-          </a>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// ─── Main HomePage Export ─────────────────────────────────────────────────────
+// ─── MASTER HOMEPAGE EXPORT ───────────────────────────────────────────────────
 
 export default function HomePage() {
   return (
-    <>
+    <div className="min-h-screen bg-[#FBF9F5] dark:bg-[#10110F] text-[#141512] dark:text-[#F5F0E7] transition-colors selection:bg-[#C6A46A] selection:text-[#10110F]">
       <HeroSection />
-      <IndustriesSection />
-      <FeaturesHighlight />
-      <CustomizeSection />
-      <OurWorkPreview />
-      <PricingPreview />
-      <CTASection />
-    </>
+      <StudioIntroSection />
+      <FeaturedDemosSection />
+      <InteractiveDeviceLabSection />
+      <ServicesSection />
+      <SevenDayProcess />
+      <OwnershipSection />
+      <PricingSection />
+      <WhyChooseUsSection />
+      <ContactSection />
+    </div>
   )
 }

@@ -1,18 +1,47 @@
 import { useState } from 'react'
-import { Check, MapPin, Phone, MessageCircle } from 'lucide-react'
-import { getWhatsAppUrl, PHONE_DISPLAY, PHONE_NUMBER } from '../lib/constants'
+import {
+  Check,
+  MapPin,
+  Phone,
+  MessageSquare,
+  ShieldCheck,
+  Send,
+  Clock,
+  Sparkles,
+  CheckCircle2,
+  ArrowRight
+} from 'lucide-react'
+import {
+  getWhatsAppUrl,
+  WA_MESSAGES,
+  PHONE_DISPLAY_1,
+  PHONE_NUMBER_1,
+  WHATSAPP_NUMBER_1,
+  PHONE_DISPLAY_2,
+  PHONE_NUMBER_2,
+  WHATSAPP_NUMBER_2,
+  CITY
+} from '../lib/constants'
 
 export default function ContactPage() {
-  const [form, setForm] = useState({ name: '', business: '', phone: '', message: '' })
+  const [form, setForm] = useState({
+    name: '',
+    business: '',
+    phone: '',
+    tradeCategory: 'Luxury Salon & Spa',
+    budget: 'Growth (₹9,000 onwards)',
+    message: '',
+    contactLine: 'line1',
+  })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submitted, setSubmitted] = useState(false)
 
   const validate = () => {
     const e: Record<string, string> = {}
-    if (!form.name.trim()) e.name = 'Name is required'
+    if (!form.name.trim()) e.name = 'Please provide your name'
     if (!form.business.trim()) e.business = 'Business name is required'
-    if (!form.phone.trim()) e.phone = 'Phone number is required'
-    if (!form.message.trim()) e.message = 'Message is required'
+    if (!form.phone.trim() || form.phone.length < 10) e.phone = 'Valid 10-digit phone number is required'
+    if (!form.message.trim()) e.message = 'Please provide brief project details'
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -20,160 +49,321 @@ export default function ContactPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!validate()) return
-    const msg = `Hello PIXORA DIGITAL!\n\n*Contact Enquiry:*\n• Name: ${form.name}\n• Business: ${form.business}\n• Phone: ${form.phone}\n\n*Message:*\n${form.message}`
-    window.open(getWhatsAppUrl(msg), '_blank')
+
+    const targetNumber = form.contactLine === 'line2' ? WHATSAPP_NUMBER_2 : WHATSAPP_NUMBER_1
+
+    const msg = `Hello PIXORA DIGITAL!
+
+*Direct Project Inquiry:*
+• Client Name: ${form.name}
+• Business Name: ${form.business}
+• Phone: ${form.phone}
+• Trade Category: ${form.tradeCategory}
+• Selected Budget Scope: ${form.budget}
+
+*Project Vision & Goals:*
+${form.message}
+
+Please confirm availability and share next steps!`
+
+    window.open(getWhatsAppUrl(msg, targetNumber), '_blank')
     setSubmitted(true)
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950">
-      {/* Hero */}
-      <div className="bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950 pt-32 pb-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl sm:text-5xl font-black text-white mb-6">
-            Get In{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">Touch.</span>
+    <div className="min-h-screen bg-[#FBF9F5] dark:bg-[#10110F] text-[#141512] dark:text-[#F5F0E7] transition-colors selection:bg-[#C6A46A] selection:text-[#10110F] pt-36 pb-24">
+      {/* Editorial Header */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-20">
+        <div className="max-w-3xl">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#EFECE6]/80 dark:bg-[#191A17] text-[#8E6D3E] dark:text-[#C6A46A] text-xs font-mono font-bold uppercase tracking-widest mb-6 border border-black/5 dark:border-white/10">
+            <MessageSquare className="w-3.5 h-3.5 text-[#C6A46A]" />
+            Direct Studio Connections
+          </div>
+          <h1 className="text-4xl sm:text-6xl lg:text-[64px] font-black tracking-tight leading-[1.06] mb-6 text-[#141512] dark:text-[#F5F0E7]">
+            Let's Talk About{' '}
+            <span className="font-serif-display italic font-normal text-[#C6A46A]">
+              Your Next Website.
+            </span>
           </h1>
-          <p className="text-slate-400 text-xl max-w-2xl mx-auto">
-            Ready to start your website project? Reach out and we'll get back to you quickly.
+          <p className="text-lg sm:text-xl text-[#5A564F] dark:text-[#A8A49B] leading-relaxed font-light">
+            Ready to upgrade your business website? Reach our Hyderabad engineering team directly. We are accessible via two direct phone lines and priority WhatsApp channels.
           </p>
         </div>
-      </div>
+      </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="grid lg:grid-cols-2 gap-16">
-          {/* Contact info */}
-          <div>
-            <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-8">Contact Details</h2>
+      {/* Main Grid: Dual Contact Cards + Interactive Inquiry Form */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-12 gap-12 items-start">
+          {/* Left Column: Direct Phone & Studio Details */}
+          <div className="lg:col-span-5 space-y-6">
+            <h2 className="text-2xl sm:text-3xl font-black text-[#141512] dark:text-[#F5F0E7] tracking-tight">
+              Two Dedicated Lines
+            </h2>
+            <p className="text-sm text-[#5A564F] dark:text-[#A8A49B] font-light leading-relaxed">
+              Call us directly for immediate project scoping, or initiate a chat on WhatsApp with formatted details.
+            </p>
 
-            <div className="space-y-5 mb-10">
-              <div className="flex items-start gap-4 p-5 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
-                <div className="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0">
-                  <MessageCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
-                </div>
+            {/* Contact Line 1 */}
+            <div className="p-6 rounded-3xl bg-white dark:bg-[#191A17] border border-black/5 dark:border-white/10 space-y-4 shadow-sm">
+              <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-semibold text-slate-900 dark:text-white mb-1">WhatsApp</p>
-                  <p className="text-slate-600 dark:text-slate-400 text-sm mb-2">{PHONE_DISPLAY}</p>
-                  <a
-                    href={getWhatsAppUrl("Hello! I'd like to discuss a website project with you.")}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm font-semibold text-green-600 dark:text-green-400 hover:underline"
-                  >
-                    Open WhatsApp Chat →
-                  </a>
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#C6A46A] block">
+                    Contact Line 1
+                  </span>
+                  <span className="text-lg font-bold text-[#141512] dark:text-[#F5F0E7]">
+                    {PHONE_DISPLAY_1}
+                  </span>
                 </div>
+                <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                  Online
+                </span>
               </div>
 
-              <div className="flex items-start gap-4 p-5 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
-                <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0">
-                  <Phone className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                </div>
-                <div>
-                  <p className="font-semibold text-slate-900 dark:text-white mb-1">Phone</p>
-                  <a
-                    href={`tel:${PHONE_NUMBER}`}
-                    className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline"
-                  >
-                    {PHONE_DISPLAY}
-                  </a>
-                  <p className="text-slate-500 dark:text-slate-500 text-xs mt-1">Tap to call directly</p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-4 p-5 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
-                <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
-                  <MapPin className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div>
-                  <p className="font-semibold text-slate-900 dark:text-white mb-1">Location</p>
-                  <p className="text-slate-600 dark:text-slate-400 text-sm">Hyderabad, Telangana, India</p>
-                  <p className="text-slate-500 dark:text-slate-500 text-xs mt-1">We work with clients across India</p>
-                </div>
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <a
+                  href={`tel:${PHONE_NUMBER_1}`}
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#F7F5EF] dark:bg-[#121310] hover:bg-[#EFECE6] text-[#141512] dark:text-[#F5F0E7] text-xs font-bold transition-colors border border-black/5 dark:border-white/10"
+                >
+                  <Phone className="w-3.5 h-3.5 text-[#C6A46A]" />
+                  <span>Call Line 1</span>
+                </a>
+                <a
+                  href={getWhatsAppUrl(WA_MESSAGES.default, WHATSAPP_NUMBER_1)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#C6A46A] hover:bg-[#B39054] text-[#10110F] text-xs font-bold transition-colors shadow-sm"
+                >
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  <span>WhatsApp 1</span>
+                </a>
               </div>
             </div>
 
-            {/* Google Maps embed */}
-            <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 h-64">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d243647.0163741271!2d78.24323129999999!3d17.4126517!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb99daeaebd2c7%3A0xae93b78392bafbc2!2sHyderabad%2C%20Telangana!5e0!3m2!1sen!2sin!4v1699990000000!5m2!1sen!2sin"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Hyderabad, Telangana, India"
-              />
+            {/* Contact Line 2 */}
+            <div className="p-6 rounded-3xl bg-white dark:bg-[#191A17] border border-black/5 dark:border-white/10 space-y-4 shadow-sm">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#C6A46A] block">
+                    Contact Line 2
+                  </span>
+                  <span className="text-lg font-bold text-[#141512] dark:text-[#F5F0E7]">
+                    {PHONE_DISPLAY_2}
+                  </span>
+                </div>
+                <span className="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                  Online
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <a
+                  href={`tel:${PHONE_NUMBER_2}`}
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#F7F5EF] dark:bg-[#121310] hover:bg-[#EFECE6] text-[#141512] dark:text-[#F5F0E7] text-xs font-bold transition-colors border border-black/5 dark:border-white/10"
+                >
+                  <Phone className="w-3.5 h-3.5 text-[#C6A46A]" />
+                  <span>Call Line 2</span>
+                </a>
+                <a
+                  href={getWhatsAppUrl(WA_MESSAGES.default, WHATSAPP_NUMBER_2)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#C6A46A] hover:bg-[#B39054] text-[#10110F] text-xs font-bold transition-colors shadow-sm"
+                >
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  <span>WhatsApp 2</span>
+                </a>
+              </div>
+            </div>
+
+            {/* Studio Location Card */}
+            <div className="p-6 rounded-3xl bg-white dark:bg-[#191A17] border border-black/5 dark:border-white/10 space-y-4 shadow-sm">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#C6A46A]/15 text-[#C6A46A] flex items-center justify-center flex-shrink-0">
+                  <MapPin className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#8F8B82] block">
+                    Studio Location
+                  </span>
+                  <p className="text-base font-bold text-[#141512] dark:text-[#F5F0E7]">{CITY}</p>
+                  <p className="text-xs text-[#5A564F] dark:text-[#A8A49B] mt-1 font-light">
+                    Serving Banjara Hills, Jubilee Hills, Hitec City, Gachibowli, Kokapet, and pan-India clients.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Contact form */}
-          <div className="bg-slate-50 dark:bg-slate-900 rounded-3xl p-8 border border-slate-200 dark:border-slate-700">
+          {/* Right Column: Validated Interactive Form */}
+          <div className="lg:col-span-7 bg-white dark:bg-[#191A17] rounded-3xl p-8 sm:p-10 border border-black/5 dark:border-white/10 shadow-xl">
             {submitted ? (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-4">
-                  <Check className="w-8 h-8 text-green-600" />
+              <div className="text-center py-12 space-y-4">
+                <div className="w-16 h-16 rounded-full bg-emerald-500/15 flex items-center justify-center text-emerald-500 mx-auto">
+                  <CheckCircle2 className="w-8 h-8" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">WhatsApp Opened!</h3>
-                <p className="text-slate-600 dark:text-slate-400 mb-6">Your message details have been prepared. Please send the WhatsApp message to connect with us.</p>
+                <h3 className="text-2xl font-bold text-[#141512] dark:text-[#F5F0E7]">
+                  WhatsApp Inquiry Transferred!
+                </h3>
+                <p className="text-sm text-[#5A564F] dark:text-[#A8A49B] max-w-md mx-auto font-light">
+                  Your project brief has been formatted and transferred to WhatsApp. Tap Send in your WhatsApp chat to connect with our engineering team.
+                </p>
                 <button
-                  onClick={() => { setSubmitted(false); setForm({ name: '', business: '', phone: '', message: '' }) }}
-                  className="px-6 py-2.5 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors text-sm font-medium"
+                  onClick={() => setSubmitted(false)}
+                  className="px-6 py-2.5 rounded-full border border-black/10 dark:border-white/10 text-xs font-bold text-[#141512] dark:text-[#F5F0E7] hover:bg-[#F7F5EF] dark:hover:bg-[#121310] transition-colors"
                 >
-                  Send Another Message
+                  Send Another Inquiry
                 </button>
               </div>
             ) : (
-              <>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">Send us a Message</h3>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  {[
-                    { id: 'name', label: 'Your Name *', type: 'text', placeholder: 'Your full name' },
-                    { id: 'business', label: 'Business Name *', type: 'text', placeholder: 'Your business name' },
-                    { id: 'phone', label: 'Phone Number *', type: 'tel', placeholder: '+91 XXXXX XXXXX' },
-                  ].map(({ id, label, type, placeholder }) => (
-                    <div key={id}>
-                      <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">{label}</label>
-                      <input
-                        type={type}
-                        value={form[id as keyof typeof form]}
-                        onChange={(e) => setForm({ ...form, [id]: e.target.value })}
-                        placeholder={placeholder}
-                        className={`w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border ${errors[id] ? 'border-red-400' : 'border-slate-300 dark:border-slate-600'} text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all`}
-                      />
-                      {errors[id] && <p className="mt-1 text-xs text-red-500">{errors[id]}</p>}
-                    </div>
-                  ))}
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5">Message *</label>
-                    <textarea
-                      value={form.message}
-                      onChange={(e) => setForm({ ...form, message: e.target.value })}
-                      placeholder="Tell us about your business and what you're looking for..."
-                      rows={4}
-                      className={`w-full px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border ${errors.message ? 'border-red-400' : 'border-slate-300 dark:border-slate-600'} text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none`}
-                    />
-                    {errors.message && <p className="mt-1 text-xs text-red-500">{errors.message}</p>}
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 hover:-translate-y-0.5 hover:shadow-indigo-500/40 transition-all flex items-center justify-center gap-2"
-                  >
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                    </svg>
-                    Send via WhatsApp
-                  </button>
-                  <p className="text-xs text-slate-500 text-center">
-                    This will open WhatsApp with your message pre-filled.
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <h3 className="text-2xl font-bold text-[#141512] dark:text-[#F5F0E7] mb-2">
+                    Send a Project Brief
+                  </h3>
+                  <p className="text-xs text-[#5A564F] dark:text-[#A8A49B] font-light">
+                    Fill in your project requirements and receive a structured scope breakdown.
                   </p>
-                </form>
-              </>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[#8F8B82] mb-2">
+                      Your Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Ramesh Reddy"
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      className={`w-full px-4 py-3 rounded-xl bg-[#F7F5EF] dark:bg-[#121310] border ${
+                        errors.name ? 'border-red-500' : 'border-black/5 dark:border-white/10'
+                      } text-[#141512] dark:text-[#F5F0E7] text-sm focus:outline-none focus:ring-2 focus:ring-[#C6A46A]`}
+                    />
+                    {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[#8F8B82] mb-2">
+                      Business or Brand Name *
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Saffron Bistro"
+                      value={form.business}
+                      onChange={(e) => setForm({ ...form, business: e.target.value })}
+                      className={`w-full px-4 py-3 rounded-xl bg-[#F7F5EF] dark:bg-[#121310] border ${
+                        errors.business ? 'border-red-500' : 'border-black/5 dark:border-white/10'
+                      } text-[#141512] dark:text-[#F5F0E7] text-sm focus:outline-none focus:ring-2 focus:ring-[#C6A46A]`}
+                    />
+                    {errors.business && <p className="text-red-500 text-xs mt-1">{errors.business}</p>}
+                  </div>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[#8F8B82] mb-2">
+                      Phone Number (WhatsApp) *
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="e.g. +91 98765 43210"
+                      value={form.phone}
+                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                      className={`w-full px-4 py-3 rounded-xl bg-[#F7F5EF] dark:bg-[#121310] border ${
+                        errors.phone ? 'border-red-500' : 'border-black/5 dark:border-white/10'
+                      } text-[#141512] dark:text-[#F5F0E7] text-sm focus:outline-none focus:ring-2 focus:ring-[#C6A46A]`}
+                    />
+                    {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[#8F8B82] mb-2">
+                      Trade / Business Category *
+                    </label>
+                    <select
+                      value={form.tradeCategory}
+                      onChange={(e) => setForm({ ...form, tradeCategory: e.target.value })}
+                      className="w-full px-4 py-3 rounded-xl bg-[#F7F5EF] dark:bg-[#121310] border border-black/5 dark:border-white/10 text-[#141512] dark:text-[#F5F0E7] text-sm focus:outline-none focus:ring-2 focus:ring-[#C6A46A]"
+                    >
+                      <option>Luxury Salon & Spa</option>
+                      <option>Heritage Restaurant & Dining</option>
+                      <option>Designer Fashion Boutique</option>
+                      <option>Architectural Furniture Showroom</option>
+                      <option>Advanced Dental & Healthcare</option>
+                      <option>High-Performance Athletic Gym</option>
+                      <option>Luxury Real Estate & Villas</option>
+                      <option>Supercar Detailing & PPF Studio</option>
+                      <option>Cinematic Wedding Photography</option>
+                      <option>Premier Coaching & Test Prep</option>
+                      <option>Other Trade (Custom Website)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[#8F8B82] mb-2">
+                    Send Inquiry To Line:
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, contactLine: 'line1' })}
+                      className={`py-2.5 px-4 rounded-xl text-xs font-bold border transition-all text-left ${
+                        form.contactLine === 'line1'
+                          ? 'border-[#C6A46A] bg-[#C6A46A]/10 text-[#141512] dark:text-[#F5F0E7]'
+                          : 'border-black/5 dark:border-white/10 bg-[#F7F5EF] dark:bg-[#121310] text-[#8F8B82]'
+                      }`}
+                    >
+                      <span className="block font-mono text-[10px] text-[#C6A46A]">LINE 1</span>
+                      <span>{PHONE_DISPLAY_1}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setForm({ ...form, contactLine: 'line2' })}
+                      className={`py-2.5 px-4 rounded-xl text-xs font-bold border transition-all text-left ${
+                        form.contactLine === 'line2'
+                          ? 'border-[#C6A46A] bg-[#C6A46A]/10 text-[#141512] dark:text-[#F5F0E7]'
+                          : 'border-black/5 dark:border-white/10 bg-[#F7F5EF] dark:bg-[#121310] text-[#8F8B82]'
+                      }`}
+                    >
+                      <span className="block font-mono text-[10px] text-[#C6A46A]">LINE 2</span>
+                      <span>{PHONE_DISPLAY_2}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono font-bold uppercase tracking-wider text-[#8F8B82] mb-2">
+                    Project Vision & Goals *
+                  </label>
+                  <textarea
+                    rows={4}
+                    placeholder="Briefly describe what your business offers, key features needed (online menu, booking slots, lookbook, doctor credentials), and your target launch date..."
+                    value={form.message}
+                    onChange={(e) => setForm({ ...form, message: e.target.value })}
+                    className={`w-full px-4 py-3 rounded-xl bg-[#F7F5EF] dark:bg-[#121310] border ${
+                      errors.message ? 'border-red-500' : 'border-black/5 dark:border-white/10'
+                    } text-[#141512] dark:text-[#F5F0E7] text-sm focus:outline-none focus:ring-2 focus:ring-[#C6A46A] resize-none`}
+                  />
+                  {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message}</p>}
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-4 rounded-full bg-[#C6A46A] hover:bg-[#B39054] text-[#10110F] font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-[#C6A46A]/20 transition-all hover:-translate-y-0.5"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>Send Inquiry on WhatsApp</span>
+                </button>
+
+                <p className="text-[11px] text-center text-[#8F8B82]">
+                  🔒 Your communication is direct with our engineers. Zero spam or third-party sharing.
+                </p>
+              </form>
             )}
           </div>
         </div>
-      </div>
+      </section>
     </div>
   )
 }

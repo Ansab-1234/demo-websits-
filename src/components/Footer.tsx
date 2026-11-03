@@ -1,107 +1,173 @@
 import { Link } from 'react-router-dom'
-import { Zap, MapPin, Phone } from 'lucide-react'
-import { getWhatsAppUrl, WA_MESSAGES, PHONE_DISPLAY, PHONE_NUMBER } from '../lib/constants'
+import { MapPin, Phone, MessageSquare, ArrowUpRight } from 'lucide-react'
+import {
+  getWhatsAppUrl,
+  WA_MESSAGES,
+  PHONE_DISPLAY_1,
+  PHONE_NUMBER_1,
+  PHONE_DISPLAY_2,
+  PHONE_NUMBER_2,
+  WHATSAPP_NUMBER_1,
+  WHATSAPP_NUMBER_2,
+} from '../lib/constants'
 
 export default function Footer() {
-  const year = new Date().getFullYear()
+  const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-slate-950 text-slate-400">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Top section */}
-        <div className="py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-8">
-          {/* Brand */}
-          <div className="lg:col-span-1">
-            <Link to="/" className="flex items-center gap-2 group mb-4">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-                <Zap className="w-5 h-5 text-white" />
+    <footer className="bg-[#0C0D0B] text-[#A8A49B] border-t border-white/10 selection:bg-[#C6A46A] selection:text-[#10110F]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8 mb-16">
+          {/* Brand Column */}
+          <div className="lg:col-span-2">
+            <Link to="/" className="inline-flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-[#F5F0E7] text-[#10110F] flex items-center justify-center font-black text-sm tracking-tighter shadow-md">
+                P<span className="text-[#C6A46A] text-[10px]">●</span>
               </div>
-              <div>
-                <span className="text-xl font-black tracking-tight text-white">PIXORA</span>
-                <span className="text-xl font-black tracking-tight text-indigo-400"> DIGITAL</span>
+              <div className="flex flex-col">
+                <span className="text-lg font-black tracking-tight text-[#F5F0E7] leading-none">
+                  PIXORA DIGITAL
+                </span>
+                <span className="text-[10px] font-mono tracking-widest text-[#C6A46A] uppercase mt-0.5">
+                  HYDERABAD, INDIA
+                </span>
               </div>
             </Link>
-            <p className="text-sm leading-relaxed mb-6 text-slate-500">
-              Your Business Deserves a Better Digital Presence. We build stunning, modern websites for every type of business.
+            <p className="text-sm text-[#A8A49B] max-w-sm leading-relaxed mb-6 font-light">
+              Digital Experiences That Move Businesses Forward. A dedicated Hyderabad web engineering studio crafting bespoke, high-converting digital platforms for ambitious businesses.
             </p>
-            <div className="flex items-center gap-2 text-sm mb-3">
-              <MapPin className="w-4 h-4 text-indigo-400 flex-shrink-0" />
-              <span>Hyderabad, Telangana, India</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <Phone className="w-4 h-4 text-indigo-400 flex-shrink-0" />
-              <a href={`tel:${PHONE_NUMBER}`} className="hover:text-white transition-colors">{PHONE_DISPLAY}</a>
-            </div>
-          </div>
-
-          {/* Services */}
-          <div>
-            <h3 className="text-white font-semibold mb-4">What We Build</h3>
-            <ul className="space-y-2.5 text-sm">
-              {['Salon Websites', 'Restaurant Websites', 'Clothing Store Websites', 'Gym Websites', 'Real Estate Websites', 'Dental Clinic Websites', 'Photography Websites'].map(item => (
-                <li key={item}>
-                  <Link to="/industries" className="hover:text-white transition-colors">{item}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Company */}
-          <div>
-            <h3 className="text-white font-semibold mb-4">Company</h3>
-            <ul className="space-y-2.5 text-sm">
-              {[
-                { label: 'About Us', href: '/about' },
-                { label: 'Our Work', href: '/our-work' },
-                { label: 'Pricing', href: '/pricing' },
-                { label: 'Features', href: '/features' },
-                { label: 'Contact', href: '/contact' },
-                { label: 'Industries', href: '/industries' },
-              ].map(item => (
-                <li key={item.href}>
-                  <Link to={item.href} className="hover:text-white transition-colors">{item.label}</Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h3 className="text-white font-semibold mb-4">Get In Touch</h3>
-            <p className="text-sm mb-4 text-slate-500">Ready to build your website? Reach out via WhatsApp for a quick response.</p>
-            <a
-              href={getWhatsAppUrl(WA_MESSAGES.default)}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-5 py-3 bg-green-500 hover:bg-green-600 text-white text-sm font-semibold rounded-xl transition-colors mb-6"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-              </svg>
-              WhatsApp Us
-            </a>
-
-            {/* Social (placeholder) */}
-            <div>
-              <p className="text-xs text-slate-600 mb-3">Follow us (coming soon)</p>
-              <div className="flex items-center gap-3">
-                {['IG', 'FB', 'X', 'YT'].map((label, i) => (
-                  <div key={i} className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-400 cursor-not-allowed opacity-60">
-                    {label}
-                  </div>
-                ))}
+            <div className="space-y-3 text-xs text-[#A8A49B]">
+              <div className="flex items-center gap-2.5">
+                <MapPin className="w-4 h-4 text-[#C6A46A] flex-shrink-0" aria-hidden="true" />
+                <span>Hyderabad, Telangana, India</span>
               </div>
+              
+              {/* Contact 1 */}
+              <div className="flex items-center gap-3 pt-1">
+                <Phone className="w-4 h-4 text-[#C6A46A] flex-shrink-0" aria-hidden="true" />
+                <div className="flex items-center gap-2">
+                  <a href={`tel:${PHONE_NUMBER_1}`} className="text-[#F5F0E7] hover:text-[#C6A46A] font-semibold transition-colors">
+                    {PHONE_DISPLAY_1}
+                  </a>
+                  <span className="text-white/20">|</span>
+                  <a
+                    href={getWhatsAppUrl(WA_MESSAGES.default, WHATSAPP_NUMBER_1)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-400 hover:text-emerald-300 transition-colors inline-flex items-center gap-1"
+                  >
+                    <MessageSquare className="w-3 h-3" />
+                    <span>WhatsApp</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Contact 2 */}
+              <div className="flex items-center gap-3">
+                <Phone className="w-4 h-4 text-[#C6A46A] flex-shrink-0" aria-hidden="true" />
+                <div className="flex items-center gap-2">
+                  <a href={`tel:${PHONE_NUMBER_2}`} className="text-[#F5F0E7] hover:text-[#C6A46A] font-semibold transition-colors">
+                    {PHONE_DISPLAY_2}
+                  </a>
+                  <span className="text-white/20">|</span>
+                  <a
+                    href={getWhatsAppUrl(WA_MESSAGES.default, WHATSAPP_NUMBER_2)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-emerald-400 hover:text-emerald-300 transition-colors inline-flex items-center gap-1"
+                  >
+                    <MessageSquare className="w-3 h-3" />
+                    <span>WhatsApp</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Navigation */}
+          <div>
+            <h4 className="text-xs font-mono font-bold tracking-widest text-[#F5F0E7] uppercase mb-4">Navigation</h4>
+            <ul className="space-y-2.5 text-xs">
+              {[
+                { label: 'Home', href: '/' },
+                { label: 'Experiences Lab', href: '/experiences' },
+                { label: 'Industries We Build', href: '/industries' },
+                { label: 'Services', href: '/services' },
+                { label: 'Live Demos & Work', href: '/our-work' },
+                { label: 'Our Process', href: '/process' },
+                { label: 'Pricing Packages', href: '/pricing' },
+                { label: 'About Our Team', href: '/about' },
+                { label: 'Contact & Inquiry', href: '/contact' },
+              ].map((item) => (
+                <li key={item.label}>
+                  <Link to={item.href} className="hover:text-[#F5F0E7] transition-colors">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Live Previews */}
+          <div>
+            <h4 className="text-xs font-mono font-bold tracking-widest text-[#F5F0E7] uppercase mb-4">Bespoke Previews</h4>
+            <ul className="space-y-2.5 text-xs">
+              {[
+                { label: 'Luxury Salon', href: '/preview/salon' },
+                { label: 'Heritage Restaurant', href: '/preview/restaurant' },
+                { label: 'Designer Clothing', href: '/preview/clothing' },
+                { label: 'Advanced Dental', href: '/preview/dental' },
+                { label: 'Performance Gym', href: '/preview/gym' },
+                { label: 'Architectural Furniture', href: '/preview/furniture' },
+                { label: 'Luxury Real Estate', href: '/preview/real-estate' },
+                { label: 'Auto Detailing Lab', href: '/preview/automobile' },
+                { label: 'Darkroom Photography', href: '/preview/photography' },
+                { label: 'Education Academy', href: '/preview/education' },
+              ].map((item) => (
+                <li key={item.label}>
+                  <Link to={item.href} className="hover:text-[#F5F0E7] transition-colors inline-flex items-center gap-1 group">
+                    <span>{item.label}</span>
+                    <ArrowUpRight className="w-3 h-3 text-[#A8A49B] group-hover:text-[#C6A46A] transition-colors" aria-hidden="true" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Direct WhatsApp Callout */}
+          <div>
+            <h4 className="text-xs font-mono font-bold tracking-widest text-[#F5F0E7] uppercase mb-4">Direct Connect</h4>
+            <p className="text-xs text-[#A8A49B] mb-4 leading-relaxed">
+              Have questions about your project timeline or need a personalized consultation? Connect with us directly.
+            </p>
+            <div className="space-y-2.5">
+              <a
+                href={getWhatsAppUrl(WA_MESSAGES.default, WHATSAPP_NUMBER_1)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#C6A46A] hover:bg-[#B39054] text-[#10110F] text-xs font-bold rounded-xl transition-all shadow-md"
+              >
+                <MessageSquare className="w-3.5 h-3.5" aria-hidden="true" />
+                <span>WhatsApp Line 1</span>
+              </a>
+              <a
+                href={getWhatsAppUrl(WA_MESSAGES.default, WHATSAPP_NUMBER_2)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/15 text-[#F5F0E7] border border-white/10 text-xs font-semibold rounded-xl transition-all"
+              >
+                <MessageSquare className="w-3.5 h-3.5 text-emerald-400" aria-hidden="true" />
+                <span>WhatsApp Line 2</span>
+              </a>
             </div>
           </div>
         </div>
 
-        {/* Bottom */}
-        <div className="border-t border-slate-800 py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
-          <p className="text-slate-600">
-            © {year} PIXORA DIGITAL. Hyderabad, Telangana, India.
-          </p>
-          <p className="text-slate-700 text-xs">
-            This is a demo website. All industry previews are sample designs.
+        {/* Bottom Bar */}
+        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#A8A49B]">
+          <p>© {currentYear} PIXORA DIGITAL • Hyderabad, Telangana, India. All rights reserved.</p>
+          <p className="text-[#8F8B82] text-[11px] font-mono">
+            Designed & Developed by PIXORA DIGITAL
           </p>
         </div>
       </div>

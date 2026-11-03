@@ -4,6 +4,9 @@ import Layout from './components/Layout'
 
 // Lazy load pages for fast load times and optimized code splitting
 const HomePage = lazy(() => import('./pages/HomePage'))
+const ExperiencesPage = lazy(() => import('./pages/ExperiencesPage'))
+const ServicesPage = lazy(() => import('./pages/ServicesPage'))
+const ProcessPage = lazy(() => import('./pages/ProcessPage'))
 const IndustriesPage = lazy(() => import('./pages/IndustriesPage'))
 const FeaturesPage = lazy(() => import('./pages/FeaturesPage'))
 const OurWorkPage = lazy(() => import('./pages/OurWorkPage'))
@@ -50,6 +53,9 @@ export default function App() {
           {/* Main site pages with layout */}
           <Route element={<Layout />}>
             <Route path="/" element={<HomePage />} />
+            <Route path="/experiences" element={<ExperiencesPage />} />
+            <Route path="/services" element={<ServicesPage />} />
+            <Route path="/process" element={<ProcessPage />} />
             <Route path="/industries" element={<IndustriesPage />} />
             <Route path="/features" element={<FeaturesPage />} />
             <Route path="/our-work" element={<OurWorkPage />} />

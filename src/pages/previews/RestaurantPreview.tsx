@@ -1,188 +1,278 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Star, Clock, MapPin, ArrowLeft, Phone, Utensils, CheckCircle2 } from 'lucide-react'
+import {
+  ArrowLeft,
+  Clock,
+  MapPin,
+  Phone,
+  UtensilsCrossed,
+  CheckCircle2,
+  Calendar,
+  Users,
+  ChevronRight,
+  Flame,
+  Wine,
+  Sparkles,
+  MessageSquare
+} from 'lucide-react'
+import { getWhatsAppUrl, PHONE_DISPLAY } from '../../lib/constants'
 
-const WA_URL = 'https://wa.me/918121507323'
+interface MenuItem {
+  name: string
+  price: string
+  desc: string
+  isVeg: boolean
+  isChefSpecial?: boolean
+  calories?: string
+}
 
-const menuCategories = ['All', 'Starters', 'Biryani & Rice', 'Main Course', 'Tandoor & Breads', 'Beverages & Desserts']
-
-const menuItems = [
-  { name: 'Nizami Paneer Tikka', category: 'Starters', price: '₹280', desc: 'Cottage cheese marinated in royal Hyderabadi spices and cooked in clay oven', rating: 4.8, emoji: '🧀', popular: true },
-  { name: 'Chicken 65 Original', category: 'Starters', price: '₹320', desc: 'Authentic Hyderabadi spiced crispy chicken tossed with fresh curry leaves and green chilies', rating: 4.9, emoji: '🍗', popular: true },
-  { name: 'Mutton Seekh Kebab', category: 'Starters', price: '₹390', desc: 'Finely minced spiced mutton skewers charred to smoky tenderness', rating: 4.9, emoji: '🍢', popular: true },
-  { name: 'Crispy Corn Pepper Salt', category: 'Starters', price: '₹220', desc: 'Wok tossed sweet corn kernels with scallions and crushed black pepper', rating: 4.6, emoji: '🌽', popular: false },
-  { name: 'Dum Mutton Biryani', category: 'Biryani & Rice', price: '₹420', desc: 'Slow cooked fragrant long-grain basmati rice with tender succulent mutton & saffron', rating: 5.0, emoji: '🍚', popular: true },
-  { name: 'Special Chicken Dum Biryani', category: 'Biryani & Rice', price: '₹340', desc: 'Layered spiced marinated chicken and aged basmati rice cooked on charcoal dum', rating: 4.9, emoji: '🍗', popular: true },
-  { name: 'Subz Dum Biryani', category: 'Biryani & Rice', price: '₹260', desc: 'Garden fresh vegetables layered with spiced aromatic rice and mint', rating: 4.7, emoji: '🥕', popular: false },
-  { name: 'Murgh Makhani (Butter Chicken)', category: 'Main Course', price: '₹360', desc: 'Tandoor grilled chicken simmered in rich satin tomato and cashew gravy', rating: 4.9, emoji: '🍛', popular: true },
-  { name: 'Dal Makhani Bukhara', category: 'Main Course', price: '₹260', desc: 'Slow-simmered black lentils for 18 hours with hand-churned butter', rating: 4.8, emoji: '🫘', popular: false },
-  { name: 'Butter Garlic Naan', category: 'Tandoor & Breads', price: '₹75', desc: 'Soft leavened tandoor bread brushed with fresh garlic butter', rating: 4.8, emoji: '🫓', popular: true },
-  { name: 'Special Mango Mastani', category: 'Beverages & Desserts', price: '₹160', desc: 'Thick mango pulp milkshake topped with dry fruits and ice cream', rating: 4.9, emoji: '🥭', popular: true },
-  { name: 'Shahi Tukda with Rabri', category: 'Beverages & Desserts', price: '₹150', desc: 'Crispy fried bread steeped in saffron syrup, smothered with thickened rabri', rating: 4.9, emoji: '🍮', popular: true },
+const menuCategories = [
+  {
+    category: 'Heritage Dastarkhwan Starters',
+    items: [
+      { name: 'Melt-in-Mouth Galouti Kebab', price: '₹580', desc: 'Smoked lamb paté infused with 32 Nizami spices, served over miniature saffron sheermal.', isVeg: false, isChefSpecial: true },
+      { name: 'Pathar Ka Gosht (Stone-Seared)', price: '₹620', desc: 'Tenderized mutton escalopes seared over granite river stones with cracked peppercorn and clarified butter.', isVeg: false },
+      { name: 'Wild Truffle & Malai Paneer Tikka', price: '₹480', desc: 'Charcoal-grilled cottage cheese steeped in black truffle cream and crushed coriander seeds.', isVeg: true, isChefSpecial: true },
+      { name: 'Crispy Lotus Stem in Kokum Reduction', price: '₹420', desc: 'Caramelized lotus root crisps with coastal kokum, roasted cumin, and mint emulsion.', isVeg: true },
+    ],
+  },
+  {
+    category: 'Clay Oven & Slow-Cooked Handi',
+    items: [
+      { name: 'Kachche Gosht Ki Dum Biryani', price: '₹690', desc: 'Marinated young lamb slow-cooked with aged basmati rice, saffron ghee, and sealed clay pot crust.', isVeg: false, isChefSpecial: true },
+      { name: 'Subz Chilman Pulao', price: '₹490', desc: 'Seasonal vegetables, saffron milk, caramelized shallots baked under puff pastry lid.', isVeg: true },
+      { name: '24-Hour Simmered Dal Saffron', price: '₹420', desc: 'Black lentils slow-cooked overnight over embers with churned butter and Kashmiri chili.', isVeg: true, isChefSpecial: true },
+      { name: 'Nalli Nihari with Roghani Kulcha', price: '₹740', desc: 'Slow-braised lamb shanks in rich velvety bone broth seasoned with vetiver and rose petals.', isVeg: false },
+    ],
+  },
+  {
+    category: 'Confectionery & Elixirs',
+    items: [
+      { name: 'Double Ka Meetha Mille-Feuille', price: '₹360', desc: 'Deconstructed caramelized brioche layers with rabri mousse, pistachio praline, and gold leaf.', isVeg: true, isChefSpecial: true },
+      { name: 'Zafrani Kesar Phirni in Earthen Pot', price: '₹320', desc: 'Ground basmati rice pudding slow-reduced in milk with Iranian saffron and crushed almonds.', isVeg: true },
+      { name: 'Smoked Rose & Cardamom Cooler', price: '₹260', desc: 'Fresh damask rose cordial, crushed mint, green cardamom, and mineral soda.', isVeg: true },
+    ],
+  },
 ]
 
 export default function RestaurantPreview() {
-  const [activeCategory, setActiveCategory] = useState('All')
-  const [resForm, setResForm] = useState({ name: '', phone: '', guests: '2 Guests', date: '', time: '7:30 PM' })
-  const [booked, setBooked] = useState(false)
-
-  const filtered = activeCategory === 'All' ? menuItems : menuItems.filter((i) => i.category === activeCategory)
+  const [activeCategory, setActiveCategory] = useState(menuCategories[0].category)
+  const [reservation, setReservation] = useState({
+    name: '',
+    phone: '',
+    guests: '2 Guests',
+    zone: 'Rooftop Starlight Terrace',
+    date: '',
+    time: '08:00 PM',
+    notes: '',
+  })
+  const [submitted, setSubmitted] = useState(false)
 
   const handleReservation = (e: React.FormEvent) => {
     e.preventDefault()
-    const msg = `Hello Spice Garden! I'd like to reserve a table:\n• Name: ${resForm.name}\n• Phone: ${resForm.phone}\n• Guests: ${resForm.guests}\n• Date: ${resForm.date || 'Today'}\n• Time: ${resForm.time}`
-    window.open(`${WA_URL}?text=${encodeURIComponent(msg)}`, '_blank')
-    setBooked(true)
+    if (!reservation.name || !reservation.phone || !reservation.date) return
+    const msg = `Hello Saffron & Stone Bistro!
+I would like to reserve a dining table:
+• Guest Name: ${reservation.name}
+• Phone: ${reservation.phone}
+• Party Size: ${reservation.guests}
+• Preferred Seating: ${reservation.zone}
+• Date & Time: ${reservation.date} at ${reservation.time}
+${reservation.notes ? `• Special Notes: ${reservation.notes}` : ''}
+Please confirm table reservation.`
+
+    window.open(getWhatsAppUrl(msg), '_blank')
+    setSubmitted(true)
   }
 
+  const currentCategory = menuCategories.find((c) => c.category === activeCategory) || menuCategories[0]
+
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100">
-      {/* Top Demo Banner */}
-      <div className="bg-gradient-to-r from-amber-600 via-orange-600 to-red-600 text-white text-center py-2.5 px-4 text-xs font-semibold flex items-center justify-between">
-        <Link to="/" className="inline-flex items-center gap-1.5 opacity-90 hover:opacity-100">
-          <ArrowLeft className="w-3.5 h-3.5" /> Back to PIXORA
+    <div className="min-h-screen bg-[#0F1012] text-[#FDFBF7] font-sans selection:bg-[#C86D51] selection:text-white">
+      {/* Top Agency Demo Navigation Bar */}
+      <div className="bg-[#050607] text-[#9A9B9E] px-4 py-2 text-xs flex items-center justify-between border-b border-[#1E2024]">
+        <Link to="/our-work" className="inline-flex items-center gap-1.5 hover:text-white transition-colors">
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to PIXORA Showcase</span>
         </Link>
-        <span>🍽️ Sample Restaurant Website Demo — Want a custom website like this?</span>
-        <a href={`${WA_URL}?text=Hi! I want a restaurant website like your Spice Garden demo.`} target="_blank" rel="noopener noreferrer" className="bg-white text-orange-700 px-3 py-1 rounded-full text-xs font-bold hover:bg-orange-50 transition">
-          Get This Website
+        <span className="hidden sm:inline font-mono tracking-widest uppercase text-[10px] text-[#C86D51]">
+          Industry Showcase: Gourmet Restaurant & Rooftop Bistro
+        </span>
+        <a
+          href={getWhatsAppUrl("Hello PIXORA DIGITAL! I explored your Saffron & Stone Restaurant demo. I'd like to build a similar website for my restaurant.")}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[#D4AF37] hover:underline font-semibold"
+        >
+          Build Website for My Restaurant →
         </a>
       </div>
 
-      {/* Restaurant Navbar */}
-      <nav className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800">
-        <div className="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-xl shadow-lg shadow-orange-500/20">
-              🥘
-            </div>
-            <div>
-              <h1 className="text-xl font-black text-amber-400 tracking-wide font-serif">SPICE GARDEN</h1>
-              <p className="text-[11px] text-slate-400 tracking-wider uppercase">Royal Hyderabadi & North Indian Dining</p>
-            </div>
+      {/* Top Address & Timings Strip */}
+      <div className="border-b border-[#1E2024] bg-[#14161A] px-4 py-2.5 text-xs text-[#9A9B9E]">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+          <div className="flex items-center gap-6">
+            <span className="flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-[#C86D51]" />
+              Road No. 45, Jubilee Hills, Hyderabad
+            </span>
+            <span className="hidden md:flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-[#C86D51]" />
+              Lunch: 12:00 PM – 3:30 PM | Dinner: 7:00 PM – 11:30 PM
+            </span>
           </div>
-          <div className="flex items-center gap-3">
-            <a href="#reservation" className="hidden sm:inline-flex px-4 py-2 border border-amber-500/50 hover:bg-amber-500/10 text-amber-400 rounded-xl text-xs font-semibold transition">
-              Table Reservation
+          <span className="font-semibold text-[#FDFBF7] flex items-center gap-1.5">
+            <Phone className="w-3.5 h-3.5 text-[#D4AF37]" />
+            Table Concierge: {PHONE_DISPLAY}
+          </span>
+        </div>
+      </div>
+
+      {/* Restaurant Header */}
+      <header className="sticky top-0 z-40 bg-[#0F1012]/95 backdrop-blur-md border-b border-[#1E2024]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+          <div className="flex flex-col">
+            <span className="font-serif-cinzel text-xl sm:text-2xl tracking-[0.2em] text-[#FDFBF7] font-bold">
+              SAFFRON & STONE
+            </span>
+            <span className="text-[10px] uppercase font-mono tracking-[0.3em] text-[#C86D51]">
+              Contemporary Nizami Bistro & Rooftop
+            </span>
+          </div>
+
+          <nav className="hidden lg:flex items-center gap-8 text-xs font-semibold uppercase tracking-wider text-[#A0A2A6]">
+            <a href="#menu" className="hover:text-white transition-colors">Digital Menu</a>
+            <a href="#philosophy" className="hover:text-white transition-colors">Culinary Philosophy</a>
+            <a href="#ambience" className="hover:text-white transition-colors">Rooftop Ambience</a>
+            <a href="#reserve" className="hover:text-white transition-colors">Reservations</a>
+          </nav>
+
+          <a
+            href="#reserve"
+            className="px-5 py-2.5 rounded-full bg-[#C86D51] text-white text-xs font-bold tracking-wider uppercase hover:bg-[#b05c42] transition-colors shadow-lg"
+          >
+            Reserve Table
+          </a>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&h=1000&fit=crop')] bg-cover bg-center brightness-[0.32]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0F1012] via-transparent to-black/40" />
+
+        <div className="relative max-w-4xl mx-auto px-4 text-center space-y-6 pt-12">
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#C86D51]/20 border border-[#C86D51]/40 text-xs font-mono tracking-widest text-[#FDFBF7] uppercase">
+            <Flame className="w-3.5 h-3.5 text-[#C86D51]" />
+            Slow-Cooked Heritage Gastronomy
+          </span>
+
+          <h1 className="font-serif-cinzel text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-[#FDFBF7] leading-[1.08]">
+            AN EPICUREAN JOURNEY THROUGH <span className="text-[#C86D51] italic font-serif-luxury">HYDERABADI FLAVORS</span>
+          </h1>
+
+          <p className="text-base sm:text-lg text-[#C7C9CC] max-w-2xl mx-auto font-light leading-relaxed">
+            Smoked coals, slow-simmered handis, and rooftop breezes in Jubilee Hills. Experience heirloom recipes elevated with modern culinary precision.
+          </p>
+
+          <div className="pt-4 flex flex-wrap items-center justify-center gap-4">
+            <a
+              href="#reserve"
+              className="px-8 py-4 rounded-full bg-[#C86D51] text-white text-xs uppercase font-bold tracking-widest hover:bg-[#b05c42] transition-colors shadow-xl"
+            >
+              Reserve Starlight Table
             </a>
             <a
-              href={`${WA_URL}?text=Hello Spice Garden! I'd like to place a food order for delivery/pickup.`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white text-xs font-bold rounded-xl shadow-md transition"
+              href="#menu"
+              className="px-8 py-4 rounded-full border border-white/20 text-[#FDFBF7] text-xs uppercase font-bold tracking-widest hover:bg-white/10 transition-colors"
             >
-              Order on WhatsApp
-            </a>
-          </div>
-        </div>
-      </nav>
-
-      {/* Hero */}
-      <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden py-20 px-4">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&h=900&fit=crop')] bg-cover bg-center brightness-[0.28]" />
-        <div className="relative max-w-4xl mx-auto text-center z-10">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-semibold mb-6">
-            ✨ Fine Dining Experience in Jubilee Hills, Hyderabad
-          </div>
-          <h2 className="text-4xl sm:text-6xl font-serif font-black text-white mb-6 leading-tight">
-            Authentic Flavors, <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-400 to-amber-200">
-              Timeless Hyderabadi Heritage.
-            </span>
-          </h2>
-          <p className="text-slate-300 text-base sm:text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
-            Experience handcrafted Biryanis, slow-cooked royal gravies, and succulent kebabs prepared with traditional recipes and the purest spices.
-          </p>
-          <div className="flex flex-wrap gap-4 justify-center">
-            <a href="#menu" className="px-7 py-3.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg transition">
               Explore Digital Menu
-            </a>
-            <a href="#reservation" className="px-7 py-3.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold rounded-xl transition backdrop-blur-sm">
-              Book a Table
             </a>
           </div>
         </div>
       </section>
 
-      {/* Highlights Bar */}
-      <div className="border-y border-slate-800 bg-slate-950/60 py-6">
-        <div className="max-w-6xl mx-auto px-4 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
+      {/* Interactive Digital Menu */}
+      <section id="menu" className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-[#1E2024]">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div>
-            <div className="text-2xl font-bold text-amber-400 font-serif">4.9 ★</div>
-            <div className="text-xs text-slate-400 mt-1">1,400+ Google Reviews</div>
+            <span className="text-xs uppercase font-mono tracking-[0.25em] text-[#C86D51] font-bold block mb-2">
+              The Chef's Dastarkhwan
+            </span>
+            <h2 className="font-serif-cinzel text-3xl sm:text-5xl">
+              Curated Seasonal Menu
+            </h2>
           </div>
-          <div>
-            <div className="text-2xl font-bold text-amber-400 font-serif">100% Halal</div>
-            <div className="text-xs text-slate-400 mt-1">Fresh Farm Produce</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-amber-400 font-serif">12 PM – 11 PM</div>
-            <div className="text-xs text-slate-400 mt-1">Open All 7 Days</div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-amber-400 font-serif">30 Mins</div>
-            <div className="text-xs text-slate-400 mt-1">Express Delivery</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Digital Menu Section */}
-      <section id="menu" className="max-w-6xl mx-auto px-4 py-20">
-        <div className="text-center mb-12">
-          <span className="text-amber-400 text-xs font-bold uppercase tracking-widest">Culinary Masterpieces</span>
-          <h3 className="text-3xl sm:text-4xl font-serif font-black text-white mt-2 mb-4">Our Digital Menu</h3>
-          <p className="text-slate-400 max-w-xl mx-auto text-sm">
-            Browse our full selection of freshly crafted starters, main course curries, breads and desserts.
+          <p className="text-xs font-mono text-[#9A9B9E]">
+            All meats are sourced ethically • Stone-ground spices roasted daily in-house
           </p>
         </div>
 
-        {/* Categories Tabs */}
-        <div className="flex flex-wrap gap-2 justify-center mb-10">
-          {menuCategories.map((cat) => (
+        {/* Category Tabs */}
+        <div className="flex flex-wrap gap-2 mb-10 pb-4 border-b border-[#1E2024]">
+          {menuCategories.map((c) => (
             <button
-              key={cat}
-              onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
-                activeCategory === cat
-                  ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-orange-500/20'
-                  : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+              key={c.category}
+              onClick={() => setActiveCategory(c.category)}
+              className={`px-5 py-2.5 rounded-full text-xs uppercase tracking-wider font-semibold transition-all ${
+                activeCategory === c.category
+                  ? 'bg-[#C86D51] text-white shadow-md'
+                  : 'bg-[#14161A] text-[#9A9B9E] border border-[#1E2024] hover:text-white'
               }`}
             >
-              {cat}
+              {c.category}
             </button>
           ))}
         </div>
 
-        {/* Menu Grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filtered.map((item) => (
-            <div key={item.name} className="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-5 hover:border-amber-500/50 transition-all flex flex-col justify-between group">
+        {/* Menu Items Grid */}
+        <div className="grid md:grid-cols-2 gap-8">
+          {currentCategory.items.map((item) => (
+            <div
+              key={item.name}
+              className="p-8 rounded-3xl bg-[#14161A] border border-[#1E2024] hover:border-[#C86D51]/50 transition-colors flex flex-col justify-between group"
+            >
               <div>
-                <div className="flex items-start justify-between gap-3 mb-2">
-                  <div className="text-3xl">{item.emoji}</div>
-                  {item.popular && (
-                    <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[10px] font-bold uppercase">
-                      Bestseller
+                <div className="flex items-start justify-between gap-4 mb-2">
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`w-3 h-3 rounded-xs border flex items-center justify-center p-0.5 ${
+                        item.isVeg ? 'border-emerald-500' : 'border-rose-500'
+                      }`}
+                      title={item.isVeg ? 'Vegetarian' : 'Non-Vegetarian'}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${item.isVeg ? 'bg-emerald-500' : 'bg-rose-500'}`} />
                     </span>
-                  )}
-                </div>
-                <h4 className="text-base font-bold text-white group-hover:text-amber-400 transition mb-1">{item.name}</h4>
-                <p className="text-xs text-slate-400 leading-relaxed mb-4">{item.desc}</p>
-              </div>
-              <div className="flex items-center justify-between pt-3 border-t border-slate-700/60">
-                <div>
-                  <span className="text-lg font-black text-amber-400">{item.price}</span>
-                  <div className="flex items-center gap-1 text-[11px] text-slate-400">
-                    <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
-                    <span>{item.rating}</span>
+                    <h3 className="font-serif-luxury text-xl sm:text-2xl font-semibold text-[#FDFBF7]">
+                      {item.name}
+                    </h3>
                   </div>
+                  <span className="font-mono text-base font-bold text-[#D4AF37] flex-shrink-0">
+                    {item.price}
+                  </span>
                 </div>
+
+                {item.isChefSpecial && (
+                  <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#C86D51]/20 text-[#C86D51] mb-2">
+                    Chef’s Masterpiece
+                  </span>
+                )}
+
+                <p className="text-xs sm:text-sm text-[#9A9B9E] leading-relaxed mt-1">
+                  {item.desc}
+                </p>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-[#1E2024] flex items-center justify-between">
+                <span className="text-[11px] text-[#696B6E]">Prepared to Order</span>
                 <a
-                  href={`${WA_URL}?text=Hello Spice Garden! I want to order *${encodeURIComponent(item.name)}* (${item.price}). Please share delivery timings.`}
+                  href={getWhatsAppUrl(`Hello Saffron & Stone! I'd like to order takeaway for "${item.name}" (${item.price}). Please share delivery/pickup details.`)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-3.5 py-1.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 text-white rounded-lg text-xs font-bold transition shadow"
+                  className="text-xs font-bold text-[#C86D51] hover:underline flex items-center gap-1"
                 >
-                  Order WhatsApp
+                  <span>Order via WhatsApp</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
                 </a>
               </div>
             </div>
@@ -190,124 +280,193 @@ export default function RestaurantPreview() {
         </div>
       </section>
 
-      {/* Table Reservation Section */}
-      <section id="reservation" className="bg-slate-950 py-20 px-4 border-t border-slate-800">
-        <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-12 items-center">
-          <div>
-            <span className="text-amber-400 text-xs font-bold uppercase tracking-widest">Reserve Your Table</span>
-            <h3 className="text-3xl sm:text-4xl font-serif font-black text-white mt-2 mb-4">
-              Celebrate Moments With Royal Dining
-            </h3>
-            <p className="text-slate-400 text-sm mb-6 leading-relaxed">
-              Whether it’s a family reunion, a corporate dinner, or an intimate candlelit celebration, we ensure your evening is unforgettable.
-            </p>
-            <div className="space-y-3 text-sm text-slate-300">
-              <div className="flex items-center gap-3">
-                <MapPin className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                <span>Road No. 36, Jubilee Hills, Hyderabad 500033</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Clock className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                <span>Lunch: 12:00 PM – 3:30 PM | Dinner: 7:00 PM – 11:00 PM</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <Phone className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                <a href="tel:+918121507323" className="hover:text-amber-400 transition">+91 81215 07323</a>
+      {/* Culinary Philosophy & Story */}
+      <section id="philosophy" className="py-24 bg-[#14161A] border-t border-[#1E2024]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-6 space-y-6">
+              <span className="text-xs uppercase font-mono tracking-[0.25em] text-[#C86D51] font-bold block">
+                The Heritage Flame
+              </span>
+              <h2 className="font-serif-cinzel text-3xl sm:text-5xl leading-tight">
+                Slow-Simmered Over Peat Embers Since Inception.
+              </h2>
+              <p className="text-sm text-[#9A9B9E] leading-relaxed">
+                In an era of commercial shortcuts, our kitchen preserves the classical <em>dum pukht</em> tradition: sealing hand-beaten deghs with kneaded dough to capture aromatic steam, ensuring that spices, saffron, and tender cuts mature in their own essences for hours.
+              </p>
+              <div className="grid grid-cols-2 gap-4 pt-4">
+                <div className="p-4 rounded-2xl bg-[#0F1012] border border-[#1E2024]">
+                  <span className="text-2xl font-serif-cinzel font-bold text-[#D4AF37] block">32</span>
+                  <span className="text-xs text-[#9A9B9E]">Indigenous Spices in Garam Masala</span>
+                </div>
+                <div className="p-4 rounded-2xl bg-[#0F1012] border border-[#1E2024]">
+                  <span className="text-2xl font-serif-cinzel font-bold text-[#C86D51] block">24 Hrs</span>
+                  <span className="text-xs text-[#9A9B9E]">Slow-Cooking Dal Simmer Time</span>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="bg-slate-900 border border-slate-800 p-6 sm:p-8 rounded-3xl shadow-xl">
-            {booked ? (
-              <div className="text-center py-8">
-                <CheckCircle2 className="w-14 h-14 text-green-400 mx-auto mb-3" />
-                <h4 className="text-xl font-bold text-white mb-2">Reservation Sent!</h4>
-                <p className="text-xs text-slate-400 mb-6">WhatsApp has been opened with your reservation details. Our host will confirm your booking in 5 minutes.</p>
-                <button onClick={() => setBooked(false)} className="px-5 py-2 text-xs bg-slate-800 text-slate-200 rounded-xl hover:bg-slate-700">
-                  Book Another Table
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleReservation} className="space-y-4">
-                <h4 className="text-lg font-bold text-white mb-4">Table Reservation Request</h4>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">Your Name *</label>
-                  <input
-                    required
-                    type="text"
-                    value={resForm.name}
-                    onChange={(e) => setResForm({ ...resForm, name: e.target.value })}
-                    placeholder="e.g. Vikram Reddy"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm focus:outline-none focus:border-amber-500"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">Phone *</label>
-                    <input
-                      required
-                      type="tel"
-                      value={resForm.phone}
-                      onChange={(e) => setResForm({ ...resForm, phone: e.target.value })}
-                      placeholder="10-digit number"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm focus:outline-none focus:border-amber-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">Party Size</label>
-                    <select
-                      value={resForm.guests}
-                      onChange={(e) => setResForm({ ...resForm, guests: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm focus:outline-none focus:border-amber-500"
-                    >
-                      <option>2 Guests</option>
-                      <option>4 Guests</option>
-                      <option>6 Guests</option>
-                      <option>8+ Guests (Family)</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">Date</label>
-                    <input
-                      type="date"
-                      value={resForm.date}
-                      onChange={(e) => setResForm({ ...resForm, date: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm focus:outline-none focus:border-amber-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">Time Slot</label>
-                    <select
-                      value={resForm.time}
-                      onChange={(e) => setResForm({ ...resForm, time: e.target.value })}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm focus:outline-none focus:border-amber-500"
-                    >
-                      <option>12:30 PM</option>
-                      <option>1:30 PM</option>
-                      <option>7:30 PM</option>
-                      <option>8:30 PM</option>
-                      <option>9:30 PM</option>
-                    </select>
-                  </div>
-                </div>
-                <button
-                  type="submit"
-                  className="w-full py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 text-white font-bold rounded-xl text-sm transition shadow-lg mt-2"
-                >
-                  Confirm Table on WhatsApp
-                </button>
-              </form>
-            )}
+            <div className="lg:col-span-6 grid grid-cols-2 gap-4">
+              <img
+                src="https://images.unsplash.com/photo-1544025162-d76694265947?w=600&h=800&fit=crop"
+                alt="Clay oven cooking"
+                className="rounded-3xl w-full h-80 object-cover border border-[#1E2024]"
+              />
+              <img
+                src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&h=800&fit=crop"
+                alt="Rooftop dining ambience"
+                className="rounded-3xl w-full h-80 object-cover border border-[#1E2024] mt-8"
+              />
+            </div>
           </div>
         </div>
       </section>
 
+      {/* Interactive Table Reservation Suite */}
+      <section id="reserve" className="py-24 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-[#14161A] rounded-3xl p-8 sm:p-12 border border-[#1E2024] shadow-2xl">
+          <div className="text-center max-w-xl mx-auto mb-10">
+            <span className="text-xs uppercase font-mono tracking-[0.25em] text-[#C86D51] font-bold block mb-2">
+              Guaranteed Seating
+            </span>
+            <h2 className="font-serif-cinzel text-3xl sm:text-5xl">
+              Reserve Your Dining Experience
+            </h2>
+            <p className="text-xs sm:text-sm text-[#9A9B9E] mt-2">
+              For parties of 8 or more, or private dining cellar inquiries, our reservations team will contact you directly on WhatsApp.
+            </p>
+          </div>
+
+          {submitted ? (
+            <div className="text-center py-8 space-y-4">
+              <CheckCircle2 className="w-12 h-12 text-[#C86D51] mx-auto" />
+              <h3 className="font-serif-cinzel text-2xl font-bold">Table Inquiry Dispatched</h3>
+              <p className="text-xs text-[#9A9B9E] max-w-md mx-auto">
+                Your reservation request has been prepared on WhatsApp. Tap send to finalize your table confirmation with our host.
+              </p>
+              <button
+                onClick={() => setSubmitted(false)}
+                className="px-6 py-2 rounded-full border border-[#1E2024] text-xs font-semibold hover:bg-white/5"
+              >
+                Make Another Reservation
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleReservation} className="space-y-6">
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-[#9A9B9E] mb-2">
+                    Guest Name *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. Vikramaditya Varma"
+                    value={reservation.name}
+                    onChange={(e) => setReservation({ ...reservation, name: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#0F1012] border border-[#1E2024] text-sm text-[#FDFBF7] focus:outline-none focus:ring-2 focus:ring-[#C86D51]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-[#9A9B9E] mb-2">
+                    WhatsApp Phone *
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="+91 98765 43210"
+                    value={reservation.phone}
+                    onChange={(e) => setReservation({ ...reservation, phone: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#0F1012] border border-[#1E2024] text-sm text-[#FDFBF7] focus:outline-none focus:ring-2 focus:ring-[#C86D51]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-[#9A9B9E] mb-2">
+                    Party Size
+                  </label>
+                  <select
+                    value={reservation.guests}
+                    onChange={(e) => setReservation({ ...reservation, guests: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#0F1012] border border-[#1E2024] text-sm text-[#FDFBF7] focus:outline-none focus:ring-2 focus:ring-[#C86D51]"
+                  >
+                    <option>2 Guests (Intimate Dining)</option>
+                    <option>4 Guests (Standard Table)</option>
+                    <option>6 Guests (Family Table)</option>
+                    <option>8 to 12 Guests (Feast Table)</option>
+                    <option>15+ Guests (Private Cellar Booking)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-[#9A9B9E] mb-2">
+                    Seating Atmosphere
+                  </label>
+                  <select
+                    value={reservation.zone}
+                    onChange={(e) => setReservation({ ...reservation, zone: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#0F1012] border border-[#1E2024] text-sm text-[#FDFBF7] focus:outline-none focus:ring-2 focus:ring-[#C86D51]"
+                  >
+                    <option>Rooftop Starlight Terrace</option>
+                    <option>Heritage Courtyard Bistro</option>
+                    <option>Air-Conditioned Indoor Dining</option>
+                    <option>Private Dining Cellar</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-[#9A9B9E] mb-2">
+                    Date *
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={reservation.date}
+                    onChange={(e) => setReservation({ ...reservation, date: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#0F1012] border border-[#1E2024] text-sm text-[#FDFBF7] focus:outline-none focus:ring-2 focus:ring-[#C86D51]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs uppercase font-mono tracking-wider text-[#9A9B9E] mb-2">
+                    Seating Time
+                  </label>
+                  <select
+                    value={reservation.time}
+                    onChange={(e) => setReservation({ ...reservation, time: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-[#0F1012] border border-[#1E2024] text-sm text-[#FDFBF7] focus:outline-none focus:ring-2 focus:ring-[#C86D51]"
+                  >
+                    <option>12:30 PM (Lunch)</option>
+                    <option>02:00 PM (Afternoon)</option>
+                    <option>07:30 PM (Early Dinner)</option>
+                    <option>08:30 PM (Prime Dinner)</option>
+                    <option>09:45 PM (Late Dinner)</option>
+                  </select>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-4 rounded-xl bg-[#C86D51] hover:bg-[#b05c42] text-white font-bold text-xs uppercase tracking-[0.2em] transition-colors shadow-lg"
+              >
+                Confirm Table via WhatsApp
+              </button>
+            </form>
+          )}
+        </div>
+      </section>
+
       {/* Footer */}
-      <footer className="border-t border-slate-800 bg-slate-950 py-8 text-center text-xs text-slate-500">
-        <p className="mb-2">Spice Garden Fine Dining • Jubilee Hills, Hyderabad • Demo Project by PIXORA DIGITAL</p>
-        <Link to="/" className="text-amber-400 hover:underline">Want a website built for your restaurant? Contact PIXORA DIGITAL →</Link>
+      <footer className="bg-[#050607] text-[#696B6E] py-12 border-t border-[#1E2024] text-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p>© {new Date().getFullYear()} Saffron & Stone Bistro. All rights reserved.</p>
+          <p className="font-mono text-[11px] text-[#9A9B9E]">Sample Business Website Concept engineered by PIXORA DIGITAL</p>
+        </div>
       </footer>
     </div>
   )

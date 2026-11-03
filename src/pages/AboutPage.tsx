@@ -1,140 +1,220 @@
-import { ArrowRight, MapPin, Zap } from 'lucide-react'
-import { getWhatsAppUrl, WA_MESSAGES, PHONE_DISPLAY, PHONE_NUMBER } from '../lib/constants'
+import { Link } from 'react-router-dom'
+import {
+  MapPin,
+  Target,
+  Smartphone,
+  ShieldCheck,
+  Zap,
+  Clock,
+  Sparkles,
+  ArrowRight,
+  ArrowUpRight,
+  CheckCircle2,
+  Code2,
+  Phone,
+  MessageSquare,
+  Palette,
+  Layers,
+  HeartHandshake
+} from 'lucide-react'
+import {
+  getWhatsAppUrl,
+  WA_MESSAGES,
+  PHONE_DISPLAY_1,
+  PHONE_NUMBER_1,
+  WHATSAPP_NUMBER_1,
+  PHONE_DISPLAY_2,
+  PHONE_NUMBER_2,
+  WHATSAPP_NUMBER_2,
+  CITY
+} from '../lib/constants'
 
-const values = [
-  { icon: '🎯', title: 'Business-Focused', desc: 'Every decision we make is driven by what will help your business attract more customers online.' },
-  { icon: '📱', title: 'Mobile-First', desc: 'We design for phones first because that\'s where most of your customers are browsing from.' },
-  { icon: '✨', title: 'Quality-Driven', desc: 'We don\'t cut corners. Every website we build is tested, refined, and delivered to a high standard.' },
-  { icon: '🤝', title: 'Honest & Transparent', desc: 'Clear pricing, honest timelines, and genuine advice — no overpromising.' },
-  { icon: '⚡', title: 'Fast Delivery', desc: 'We work efficiently without sacrificing quality, so your business gets online sooner.' },
-  { icon: '🌐', title: 'Long-Term Support', desc: 'We\'re available after launch to help with updates, changes, and questions.' },
+const agencyPillars = [
+  {
+    icon: Target,
+    title: 'Business-Driven Architecture',
+    desc: 'We do not build digital art pieces that look pretty but fail to generate calls. Every button, layout structure, and copy flow is engineered to convert visitors into inquiries.',
+  },
+  {
+    icon: Smartphone,
+    title: 'Mobile-First by Default',
+    desc: 'Over 82% of Hyderabad consumers search on mobile. We design and test on actual 360px–420px viewports before ever expanding to desktop displays.',
+  },
+  {
+    icon: ShieldCheck,
+    title: '100% Client Ownership Policy',
+    desc: 'Your domain, cloud hosting, and code assets remain registered under your direct name. We never hold your business digital property hostage.',
+  },
+  {
+    icon: Zap,
+    title: 'Zero Code Bloat',
+    desc: 'No sluggish WordPress builders that take 6 seconds to load. We build on modern React 19 and Tailwind CSS for instant sub-second rendering.',
+  },
+  {
+    icon: Clock,
+    title: 'Predictable 7-Day Sprint',
+    desc: 'From our Day 1 discovery session to final deployment, every phase follows a documented milestone timeline with regular WhatsApp progress updates.',
+  },
+  {
+    icon: Code2,
+    title: 'Direct Engineering Access',
+    desc: 'Speak directly with the software engineers writing your code. No middlemen, no junior subcontracting, and no endless communication delays.',
+  },
+]
+
+const operationalFacts = [
+  { label: 'Headquarters', value: CITY },
+  { label: 'Studio Specialization', value: 'High-Converting Trade Websites' },
+  { label: 'Core Engineering Stack', value: 'React 19, TypeScript, Vite, Tailwind CSS' },
+  { label: 'Primary Contact Channel', value: 'Direct WhatsApp & Phone' },
+  { label: 'Active Live Demos', value: '10 Dedicated Trade Solutions' },
+  { label: 'Ownership Policy', value: '100% Client-Owned Credentials' },
 ]
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950">
-      {/* Hero */}
-      <div className="bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-950 pt-32 pb-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-sm font-medium mb-6">
-            <MapPin className="w-4 h-4" />
-            Hyderabad, Telangana, India
+    <div className="min-h-screen bg-[#FBF9F5] dark:bg-[#10110F] text-[#141512] dark:text-[#F5F0E7] transition-colors selection:bg-[#C6A46A] selection:text-[#10110F]">
+      {/* Editorial Studio Header */}
+      <section className="pt-36 pb-20 border-b border-black/5 dark:border-white/10 relative overflow-hidden bg-[#FBF9F5] dark:bg-[#10110F]">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-[#C6A46A]/10 dark:bg-[#C6A46A]/12 rounded-full blur-[140px] pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#EFECE6]/80 dark:bg-[#191A17] border border-black/5 dark:border-white/10 text-xs font-mono font-semibold text-[#8E6D3E] dark:text-[#C6A46A] mb-6">
+            <MapPin className="w-3.5 h-3.5 text-[#C6A46A]" />
+            <span>HYDERABAD, TELANGANA, INDIA</span>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-black text-white mb-6">
-            About{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
-              PIXORA DIGITAL
+          <h1 className="text-4xl sm:text-6xl lg:text-[64px] font-black tracking-tight leading-[1.06] mb-6 text-[#141512] dark:text-[#F5F0E7]">
+            Who we are & how we{' '}
+            <span className="font-serif-display italic font-normal text-[#C6A46A]">
+              engineer for your growth.
             </span>
           </h1>
-          <p className="text-slate-400 text-xl max-w-2xl mx-auto">
-            A Hyderabad-based website development team helping local businesses build a strong digital presence.
+          <p className="text-lg sm:text-xl text-[#5A564F] dark:text-[#A8A49B] max-w-3xl leading-relaxed font-light">
+            PIXORA DIGITAL is a dedicated web design and software engineering studio based in Hyderabad. We partner directly with ambitious local businesses, healthcare specialists, restaurants, and retailers who are ready to build digital trust and attract premium clients.
           </p>
         </div>
-      </div>
+      </section>
 
-      {/* About content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="grid lg:grid-cols-2 gap-16 items-center mb-20">
-          <div>
-            <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-6">
-              Who We Are
+      {/* Main Studio Narrative & Operations Bento */}
+      <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid lg:grid-cols-12 gap-12 items-start mb-24">
+          <div className="lg:col-span-7 space-y-6 text-[#5A564F] dark:text-[#A8A49B] leading-relaxed text-base sm:text-lg font-light">
+            <h2 className="text-2xl sm:text-4xl font-black text-[#141512] dark:text-[#F5F0E7] tracking-tight">
+              A modern digital partner for businesses that value substance over fluff.
             </h2>
-            <div className="space-y-4 text-slate-600 dark:text-slate-400 leading-relaxed">
-              <p>
-                We are a Hyderabad-based website development team dedicated to helping local businesses establish a strong digital presence through modern, professional, and user-friendly websites.
-              </p>
-              <p>
-                Our focus is simple: create websites that look impressive, work smoothly, and make it easier for customers to connect with businesses.
-              </p>
-              <p>
-                Whether you run a salon, a restaurant, a clothing store, a clinic, a gym, or any other type of business — we understand that your website needs to reflect your brand, attract the right customers, and make it easy for them to take action.
-              </p>
-              <p>
-                We don't use generic templates. Every website we build is designed specifically for your business, your audience, and your goals.
-              </p>
-            </div>
-            <div className="mt-8 flex flex-wrap gap-4">
+            <p>
+              Many local businesses in Hyderabad face the same frustrating dilemma: pay a traditional agency exorbitant fees for bloated, slow WordPress templates, or hire freelance operators who disappear the moment you need an urgent menu change or domain renewal.
+            </p>
+            <p>
+              We founded <strong className="text-[#141512] dark:text-[#F5F0E7]">PIXORA DIGITAL</strong> to offer a better standard. We believe a business website should be as fast, refined, and responsive as software built by world-class tech companies — but straightforward, transparent, and accessible for local trade owners.
+            </p>
+            <p>
+              Whether you operate a luxury salon in Banjara Hills, a heritage restaurant in Jubilee Hills, a dental institute in Hitec City, or an architectural showroom in the Financial District, we engineer an experience that honors your standards and converts visitors into loyal clients.
+            </p>
+            
+            {/* Action Buttons */}
+            <div className="pt-4 flex flex-wrap gap-4">
               <a
-                href={getWhatsAppUrl(WA_MESSAGES.contactTeam)}
+                href={getWhatsAppUrl(WA_MESSAGES.freeConsultation, WHATSAPP_NUMBER_1)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-500/25 hover:-translate-y-0.5 transition-all"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-[#C6A46A] hover:bg-[#B39054] text-[#10110F] text-xs font-bold uppercase tracking-wider rounded-full shadow-lg shadow-[#C6A46A]/20 transition-all hover:-translate-y-0.5"
               >
-                Contact Our Team <ArrowRight className="w-4 h-4" />
+                <span>Schedule a Consultation</span>
+                <ArrowRight className="w-4 h-4" />
               </a>
-              <a
-                href={`tel:${PHONE_NUMBER}`}
-                className="inline-flex items-center gap-2 px-6 py-3 border-2 border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
+              <Link
+                to="/our-work"
+                className="inline-flex items-center gap-2 px-8 py-4 bg-white dark:bg-[#191A17] hover:bg-[#F7F5EF] dark:hover:bg-[#252622] text-[#141512] dark:text-[#F5F0E7] border border-black/10 dark:border-white/10 text-xs font-bold uppercase tracking-wider rounded-full transition-all"
               >
-                Call: {PHONE_DISPLAY}
-              </a>
+                <span>Explore Live Demos</span>
+                <ArrowUpRight className="w-4 h-4 text-[#C6A46A]" />
+              </Link>
             </div>
           </div>
 
-          {/* Visual card */}
-          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/50 dark:to-purple-950/50 rounded-3xl border border-indigo-100 dark:border-indigo-900/50 p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
-                <Zap className="w-6 h-6 text-white" />
+          {/* Studio Operations Bento Card */}
+          <div className="lg:col-span-5 bg-white dark:bg-[#191A17] text-[#141512] dark:text-[#F5F0E7] rounded-3xl p-8 sm:p-10 border border-black/5 dark:border-white/10 shadow-xl space-y-6">
+            <div className="flex items-center justify-between pb-4 border-b border-black/5 dark:border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#C6A46A] text-[#10110F] flex items-center justify-center font-black text-sm">
+                  P<span className="text-white text-[10px]">●</span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-black tracking-tight">Studio Operations</h3>
+                  <span className="text-[10px] font-mono text-[#8E6D3E] dark:text-[#C6A46A] uppercase tracking-wider">Hyderabad, Telangana</span>
+                </div>
               </div>
-              <div>
-                <p className="font-black text-slate-900 dark:text-white text-xl">PIXORA DIGITAL</p>
-                <p className="text-indigo-600 dark:text-indigo-400 text-sm font-medium">Web Development Team</p>
-              </div>
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
             </div>
-            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-6">
-              "Your Business Deserves a Better Digital Presence."
-            </p>
-            <div className="space-y-3">
-              {[
-                { label: 'Location', value: 'Hyderabad, Telangana, India' },
-                { label: 'Speciality', value: 'Business Websites' },
-                { label: 'Industries', value: '18+ Business Types' },
-                { label: 'Contact', value: PHONE_DISPLAY },
-              ].map(({ label, value }) => (
-                <div key={label} className="flex items-center justify-between py-2 border-b border-indigo-100 dark:border-indigo-900/50 last:border-0">
-                  <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{label}</span>
-                  <span className="text-sm text-slate-900 dark:text-white font-medium">{value}</span>
+
+            <div className="space-y-4 text-xs">
+              {operationalFacts.map((fact) => (
+                <div key={fact.label} className="flex justify-between py-2 border-b border-black/5 dark:border-white/10">
+                  <span className="text-[#8F8B82]">{fact.label}</span>
+                  <span className="font-semibold text-right text-[#141512] dark:text-[#F5F0E7]">{fact.value}</span>
                 </div>
               ))}
             </div>
-          </div>
-        </div>
 
-        {/* Values */}
-        <div className="mb-20">
-          <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-3 text-center">Our Approach</h2>
-          <p className="text-slate-600 dark:text-slate-400 text-center mb-12">The principles behind every website we build.</p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {values.map((value) => (
-              <div
-                key={value.title}
-                className="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-lg transition-all duration-200"
-              >
-                <div className="text-3xl mb-4">{value.icon}</div>
-                <h3 className="font-bold text-slate-900 dark:text-white mb-2">{value.title}</h3>
-                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">{value.desc}</p>
+            {/* Direct Calling Strip */}
+            <div className="pt-2 space-y-2.5">
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#8F8B82] block">
+                Direct Engineering Hotlines:
+              </span>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <a
+                  href={`tel:${PHONE_NUMBER_1}`}
+                  className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#F7F5EF] dark:bg-[#121310] hover:bg-[#EFECE6] text-[#141512] dark:text-[#F5F0E7] font-semibold transition border border-black/5 dark:border-white/10"
+                >
+                  <Phone className="w-3 h-3 text-[#C6A46A]" />
+                  <span>Line 1</span>
+                </a>
+                <a
+                  href={`tel:${PHONE_NUMBER_2}`}
+                  className="flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#F7F5EF] dark:bg-[#121310] hover:bg-[#EFECE6] text-[#141512] dark:text-[#F5F0E7] font-semibold transition border border-black/5 dark:border-white/10"
+                >
+                  <Phone className="w-3 h-3 text-[#C6A46A]" />
+                  <span>Line 2</span>
+                </a>
               </div>
-            ))}
+            </div>
           </div>
         </div>
 
-        {/* CTA */}
-        <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-3xl p-12 text-center text-white">
-          <h2 className="text-3xl font-black mb-4">Let's Build Something Together</h2>
-          <p className="text-indigo-200 text-lg mb-8 max-w-xl mx-auto">
-            Ready to take your business online? We'd love to discuss your project.
-          </p>
-          <a
-            href={getWhatsAppUrl(WA_MESSAGES.startWebsite)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-white text-indigo-700 font-bold rounded-2xl shadow-xl hover:-translate-y-1 transition-all"
-          >
-            Start My Website <ArrowRight className="w-5 h-5" />
-          </a>
+        {/* 6 Core Agency Pillars */}
+        <div className="pt-16 border-t border-black/5 dark:border-white/10">
+          <div className="max-w-2xl mb-12">
+            <span className="text-xs font-mono font-bold uppercase tracking-widest text-[#8E6D3E] dark:text-[#C6A46A] mb-3 block">
+              Our Core Principles
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-[#141512] dark:text-[#F5F0E7]">
+              How we approach every project.
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {agencyPillars.map((p) => {
+              const Icon = p.icon
+              return (
+                <div
+                  key={p.title}
+                  className="p-8 rounded-3xl bg-white dark:bg-[#191A17] border border-black/5 dark:border-white/10 hover:border-[#C6A46A]/40 transition-all hover:shadow-xl space-y-4 group"
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-[#C6A46A]/15 flex items-center justify-center text-[#C6A46A] group-hover:scale-105 transition-transform">
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-xl font-bold text-[#141512] dark:text-[#F5F0E7]">
+                    {p.title}
+                  </h3>
+                  <p className="text-sm text-[#5A564F] dark:text-[#A8A49B] leading-relaxed font-light">
+                    {p.desc}
+                  </p>
+                </div>
+              )
+            })}
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   )
 }

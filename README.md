@@ -1,19 +1,24 @@
-# PIXORA DIGITAL – Universal Business Website Master Demo
+# PIXORA DIGITAL — Ultra Premium 3D Digital Agency Experience
 
-> **"Your Business Deserves a Better Digital Presence."**  
+> **"Beyond Websites. Into Digital Experiences."**  
 > *One Business. One Powerful Digital Experience.*
 
-A world-class, responsive, and production-ready **Universal Business Website** built by our Hyderabad-based digital agency team. Designed to demonstrate to business owners across 18+ different industries how a modern, high-converting custom website can be engineered for their brand.
+An award-winning, responsive, and production-ready **Universal Multi-Industry Digital Platform** built by our Hyderabad-based creative development studio. Featuring an interactive Three.js 3D kinetic sculpture, multi-device viewport testing lab (Desktop, Tablet, Mobile), and 10 standalone, independently designed business trade websites.
 
 ---
 
-## 🌟 Live Demo & Architecture Highlights
+## 🌟 Architecture, Motion & Interactive Highlights
 
-- **18+ Industry Showcase**: Interactive cards featuring custom imagery, icons, service overviews, and live preview buttons.
-- **10 Realistic Sample Business Websites**: Fully realized standalone sample sites (not just title changes), each with its own brand identity, color scheme, services, digital menus, appointment booking, WhatsApp ordering, and lead capture.
-- **Floating & Contextual WhatsApp Integration**: Seamlessly pre-configures custom enquiry text sent directly to **+91 81215 07323**.
-- **Interactive Project Customization Experience**: *"Imagine Your Business Here"* allows prospective clients to submit their business type, services, city, and phone number, generating a pre-formatted WhatsApp message for instant consultation.
-- **Modern Agency Architecture**: Light and Dark mode toggle, smooth scrolling, mobile-first responsive layout, and zero-error TypeScript build.
+- **Interactive Three.js WebGL Kinetic Sculpture**: Floating geometric polyhedral sculpture with ACESFilmic tone mapping, dynamic mouse-tracking point light, ambient particle starfield, and smooth pointer lerp.
+- **Lenis Smooth Momentum Scrolling**: High-precision kinetic scrolling with hardware-accelerated momentum and full `prefers-reduced-motion` compliance.
+- **GSAP & Framer Motion Integrations**: Subtle text reveals, scroll triggers, staggered cards, and seamless micro-interactions.
+- **Our 7-Day Development Process (`/process`)**: Interactive day-by-day milestone roadmaps (Day 1 Discovery to Day 7 Handover) with clear client feedback timing prerequisites.
+- **100% Client Ownership Guarantee**: Dedicated domain and hosting ownership architecture. We configure accounts directly under the client's name with delegated access, ensuring you retain total sovereignty over your domain and assets.
+- **Multi-Device Experience Lab (`/experiences`)**: Live viewport testing workstation allowing instant switching between Desktop (1440px), Tablet (768px), and Mobile (390px) simulated device frames with live interactive iframe rendering.
+- **10 Bespoke Business Website Demos**: Fully custom standalone preview websites, each engineered with distinct typography, tailored color palettes, authentic Hyderabad localized copy, and zero generic template clones.
+- **Transparent Honest Pricing (`/pricing`)**: Starter (₹5,000), Growth (₹9,000), and Custom Pro (₹15,000) with clear distinction between standard inclusions and external vendor bills (domain/hosting).
+- **Zero AI Mentions**: Public-facing content contains zero AI badges or developer watermarks, maintaining authentic agency craft throughout.
+- **Direct WhatsApp Conversion Engine**: Pre-configured inquiries routed directly to **+91 81215 07323**.
 
 ---
 
@@ -38,7 +43,9 @@ A world-class, responsive, and production-ready **Universal Business Website** b
 
 - **Framework**: [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
 - **Bundler & Dev Server**: [Vite 6](https://vitejs.dev/) with code-splitting lazy routes
+- **Motion & 3D**: [Three.js](https://threejs.org/), [GSAP](https://greensock.com/), [Lenis Smooth Scroll](https://github.com/darkroomengineering/lenis), [Framer Motion](https://www.framer.com/motion/)
 - **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
+- **Typography**: Curated luxury & editorial fonts via Google Fonts (`Cinzel`, `Cormorant Garamond`, `Outfit`, `Playfair Display`, `Plus Jakarta Sans`, `Space Grotesk`, `Syne`, `Oswald`)
 - **Icons**: [Lucide React](https://lucide.dev/)
 - **Navigation**: [React Router v7](https://reactrouter.com/) (with automatic scroll restoration)
 - **Deployment Ready**: Optimized for Vercel, Netlify, Cloudflare Pages, or AWS S3 + CloudFront
